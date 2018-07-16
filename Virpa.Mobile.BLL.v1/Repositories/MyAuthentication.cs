@@ -18,6 +18,10 @@ using Virpa.Mobile.DAL.v1.Model;
 namespace Virpa.Mobile.BLL.v1.Repositories {
     internal class MyAuthentication : IMyAuthentication {
 
+        #region Initialization
+
+        private readonly List<string> _infos = new List<string>();
+
         private readonly IOptions<Manifest> _options;
         private readonly IMapper _mapper;
         private readonly IProcessRefreshToken _refreshToken;
@@ -26,12 +30,16 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VirpaMobileContext _context;
 
+        #endregion
+
+        #region Constructor
+
         public MyAuthentication(IOptions<Manifest> options,
-                            IMapper mapper,
-                            IProcessRefreshToken refreshToken,
-                            SignInManager<ApplicationUser> signInManager,
-                            UserManager<ApplicationUser> userManager,
-                            VirpaMobileContext context) {
+            IMapper mapper,
+            IProcessRefreshToken refreshToken,
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            VirpaMobileContext context) {
 
             _options = options;
             _mapper = mapper;
@@ -42,9 +50,9 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             _context = context;
         }
 
-        public async Task<CustomResponse<SignInReponseModel>> SignInTheReturnUser(SignInModel model) {
+        #endregion
 
-            var infos = new List<string>();
+        public async Task<CustomResponse<SignInReponseModel>> SignInTheReturnUser(SignInModel model) {
 
             var signedIn = await _signInManager.PasswordSignInAsync(
                   model.Email, 
@@ -56,10 +64,10 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             if (!signedIn.Succeeded) {
 
-                infos.Add("You have entered an invalid email or password.");
+                _infos.Add("You have entered an invalid email or password.");
 
                 return new CustomResponse<SignInReponseModel> {
-                    Message = infos
+                    Message = _infos
                 };
             }
 
@@ -120,20 +128,22 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         public async Task<CustomResponse<string>> SignOut(SignOutModel model) {
 
-            var infos = new List<string>();
-
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             var userSession = _context.AspNetUserSessions.FirstOrDefault(t => t.UserId == user.Id && t.DeviceName == model.UserAgent);
 
+            #region Validate userSession
+
             if (userSession == null) {
-                infos.Add("User don't have registered session");
+                _infos.Add("User don't have registered session");
 
                 return new CustomResponse<string> {
-                    Message = infos
+                    Message = _infos
                 };
             }
 
+            #endregion
+            
             userSession.Validity = false;
 
             _context.Update(userSession);
@@ -149,18 +159,16 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         public async Task<CustomResponse<TokenResource>> GenerateToken(GenerateTokenModel model) {
 
-            var infos = new List<string>();
-
             var user = await _userManager.FindByEmailAsync(model.UserName);
 
             #region Validate User
 
             if (user == null) {
 
-                infos.Add("Username/email not exist.");
+                _infos.Add("Username/email not exist.");
 
                 return new CustomResponse<TokenResource> {
-                    Message = infos
+                    Message = _infos
                 };
             }
             #endregion
@@ -170,10 +178,10 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             #region Validate Token if Registered
 
             if (userToken == null) {
-                infos.Add("The account never Signed In.");
+                _infos.Add("The account never Signed In.");
 
                 return new CustomResponse<TokenResource> {
-                    Message = infos
+                    Message = _infos
                 };
             }
 
@@ -181,20 +189,20 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             #region Validate Token Type
 
-            if (model.TokenResource.Type != "refresh" && model.TokenResource.Type != "session") infos.Add("The Token Type is invalid.");
+            if (model.TokenResource.Type != "refresh" && model.TokenResource.Type != "session") _infos.Add("The Token Type is invalid.");
 
             #endregion
 
             #region Check Refresh Token Validity
-            if (userToken.Token != model.TokenResource.Token) infos.Add("The Refresh Token is wrong.");
+            if (userToken.Token != model.TokenResource.Token) _infos.Add("The Refresh Token is wrong.");
 
-            if (!(userToken.Validity ?? true)) infos.Add("The Refresh Token is invalid.");
+            if (!(userToken.Validity ?? true)) _infos.Add("The Refresh Token is invalid.");
 
-            if (userToken.TokenExpiredAt < DateTime.UtcNow && model.TokenResource.Type == "session") infos.Add("The Refresh Token is expired.");
+            if (userToken.TokenExpiredAt < DateTime.UtcNow && model.TokenResource.Type == "session") _infos.Add("The Refresh Token is expired.");
             
-            if (infos.Count > 0) {
+            if (_infos.Count > 0) {
                 return new CustomResponse<TokenResource> {
-                    Message = infos
+                    Message = _infos
                 };
             }
 

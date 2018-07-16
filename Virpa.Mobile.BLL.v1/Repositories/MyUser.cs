@@ -13,7 +13,11 @@ using Virpa.Mobile.DAL.v1.Model;
 
 namespace Virpa.Mobile.BLL.v1.Repositories {
     public class MyUser : IMyUser {
-        
+
+        #region Initialization
+
+        private readonly List<string> _infos = new List<string>();
+
         private readonly IOptions<Manifest> _options;
         private readonly IMapper _mapper;
         private readonly IEmailSender _emailSender;
@@ -21,6 +25,10 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VirpaMobileContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
+
+        #endregion
+
+        #region Constructor
 
         public MyUser(IOptions<Manifest> options
             , IEmailSender emailSender
@@ -38,24 +46,24 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             _context = context;
         }
 
-        public async Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model) {
+        #endregion
 
-            var infos = new List<string>();
+        public async Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user != null) {
 
-                infos.Add("Email address already exist.");
+                _infos.Add("Email address already exist.");
 
                 var checkedPassword = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
-                if (!checkedPassword.Succeeded) infos.Add("Failed to LogIn.");
+                if (!checkedPassword.Succeeded) _infos.Add("Failed to LogIn.");
                    
                 return new CustomResponse<UserResponse> {
                     Succeed = checkedPassword.Succeeded,
                     Data = _mapper.Map<UserResponse>(user),
-                    Message = infos
+                    Message = _infos
                 };
             }
 
@@ -65,28 +73,26 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var newUserCreated = await _userManager.CreateAsync(newUser, model.Password);
 
-            if (!newUserCreated.Succeeded) infos.Add(string.Join("xx | xx", newUserCreated.Errors));
+            if (!newUserCreated.Succeeded) _infos.Add(string.Join("xx | xx", newUserCreated.Errors));
 
             return new CustomResponse<UserResponse> {
                 Succeed = newUserCreated.Succeeded,
                 Data = _mapper.Map<UserResponse>(newUser),
-                Message = infos
+                Message = _infos
             };
         }
 
         public async Task<CustomResponse<UserResponse>> UpdateUser(UpdateUserModel model) {
-
-            var infos = new List<string>();
 
             var user = _context.AspNetUsers.FirstOrDefault(u => u.Id == model.UserId);
 
             #region Validate User
 
             if (user == null) {
-                infos.Add("User not exist.");
+                _infos.Add("User not exist.");
 
                 return new CustomResponse<UserResponse> {
-                    Message = infos
+                    Message = _infos
                 };
             };
 
@@ -108,8 +114,6 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         public async Task<CustomResponse<UserResponse>> GetUser(GetUserModel model) {
 
-            var infos = new List<string>();
-
             return await Task.Run(() => {
 
                 var user = _context.AspNetUsers.FirstOrDefault(u => u.Id == model.UserId);
@@ -117,10 +121,10 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 #region Validate User
 
                 if (user == null) {
-                    infos.Add("User not exist.");
+                    _infos.Add("User not exist.");
 
                     return new CustomResponse<UserResponse> {
-                        Message = infos
+                        Message = _infos
                     };
                 };
 
@@ -135,17 +139,15 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         public async Task<CustomResponse<ConfirmEmailModel>> SendEmailConfirmation(SendEmailConfirmation model) {
 
-            var infos = new List<string>();
-
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             #region Validate User
 
             if (user == null) {
-                infos.Add("User not exist.");
+                _infos.Add("User not exist.");
 
                 return new CustomResponse<ConfirmEmailModel> {
-                    Message = infos
+                    Message = _infos
                 };
             };
 
@@ -184,17 +186,15 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         public async Task<CustomResponse<string>> ConfirmEmail(ConfirmEmailModel model) {
 
-            var infos = new List<string>();
-
             var user = await _userManager.FindByIdAsync(model.UserId);
 
             #region Validate User
 
             if (user == null) {
-                infos.Add("User not exist.");
+                _infos.Add("User not exist.");
 
                 return new CustomResponse<string> {
-                    Message = infos
+                    Message = _infos
                 };
             };
 
@@ -202,28 +202,26 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var result = await _userManager.ConfirmEmailAsync(user, model.Token);
 
-            if (!result.Succeeded) infos.Add("Failed to confirm email.");
+            if (!result.Succeeded) _infos.Add("Failed to confirm email.");
 
             return new CustomResponse<string> {
                 Succeed = result.Succeeded,
                 Data = null,
-                Message = infos
+                Message = _infos
             };
         }
 
         public async Task<CustomResponse<string>> ChangePassword(ChangePasswordModel model) {
-
-            var infos = new List<string>();
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             #region Validate User
 
             if (user == null) {
-                infos.Add("User not exist.");
+                _infos.Add("User not exist.");
 
                 return new CustomResponse<string> {
-                    Message = infos
+                    Message = _infos
                 };
             };
 
@@ -231,28 +229,26 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var isPasswordGood = await _userManager.CheckPasswordAsync(user, model.OldPassword);
 
-            if (!isPasswordGood) infos.Add("You entered wrong Old password.");
+            if (!isPasswordGood) _infos.Add("You entered wrong Old password.");
 
             return new CustomResponse<string> {
                 Succeed = isPasswordGood,
                 Data = null,
-                Message = infos
+                Message = _infos
             };
         }
 
         public async Task<CustomResponse<ForgotPasswordResponseModel>> ForgotPassword(ForgotPasswordModel model) {
-
-            var infos = new List<string>();
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             #region Validate User
 
             if (user == null) {
-                infos.Add("User not exist.");
+                _infos.Add("User not exist.");
 
                 return new CustomResponse<ForgotPasswordResponseModel> {
-                    Message = infos
+                    Message = _infos
                 };
             };
 
@@ -291,17 +287,15 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         public async Task<CustomResponse<string>> ResetPassword(ResetPasswordModel model) {
 
-            var infos = new List<string>();
-
             var user = await _userManager.FindByIdAsync(model.UserId);
 
             #region Validate User
 
             if (user == null) {
-                infos.Add("User not exist.");
+                _infos.Add("User not exist.");
 
                 return new CustomResponse<string> {
-                    Message = infos
+                    Message = _infos
                 };
             };
 
@@ -309,12 +303,12 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
 
-            if (!result.Succeeded) infos.Add("Failed to reset password.");
+            if (!result.Succeeded) _infos.Add("Failed to reset password.");
 
             return new CustomResponse<string> {
                 Succeed = result.Succeeded,
                 Data = null,
-                Message = infos
+                Message = _infos
             };
         }
     }

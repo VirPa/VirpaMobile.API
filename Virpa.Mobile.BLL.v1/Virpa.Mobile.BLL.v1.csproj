@@ -26,7 +26,6 @@
     <Folder Include="Helpers\" />
     <Folder Include="Middlewares\" />
     <Folder Include="Repositories\Interface\" />
-    <Folder Include="Validation\" />
   </ItemGroup>
 
 </Project>

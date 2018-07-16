@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Virpa.Mobile.BLL.v1.OtherServices.Interface;
+using System.Threading.Tasks;
+using Virpa.Mobile.BLL.v1.Helpers;
 using Virpa.Mobile.BLL.v1.Repositories.Interface;
+using Virpa.Mobile.BLL.v1.Validation;
 using Virpa.Mobile.DAL.v1.Model;
 
 namespace Virpa.Mobile.API.v1.Controllers {
@@ -12,26 +14,44 @@ namespace Virpa.Mobile.API.v1.Controllers {
     [ApiVersion("1.0")]
     public class AuthenticationController : BaseController {
 
+        private readonly List<string> _infos = new List<string>();
+
         private readonly IMyAuthentication _myAuthentication;
-        private readonly IProcessRefreshToken _processRefreshToken;
+
+        private readonly ResponseBadRequest _badRequest;
+        private readonly SignInModelValidator _signInModelValidator;
+        private readonly SignOutModelValidator _signOutModelValidator;
+        private readonly GenerateTokenModelValidator _generateTokenModelValidator;
 
         public AuthenticationController(IMyAuthentication myAuthentication,
-            IProcessRefreshToken processRefreshToken) {
+            ResponseBadRequest badRequest,
+            SignInModelValidator signInModelValidator,
+            SignOutModelValidator signOutModelValidator,
+            GenerateTokenModelValidator generateTokenModelValidator) {
 
             _myAuthentication = myAuthentication;
-            _processRefreshToken = processRefreshToken;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Check() {
-
-            return Ok(new {
-                Message = "Connected to VirPa API."
-            });
+            _badRequest = badRequest;
+            _signInModelValidator = signInModelValidator;
+            _signOutModelValidator = signOutModelValidator;
+            _generateTokenModelValidator = generateTokenModelValidator;
         }
 
         [HttpPost("Sign-In", Name = "SignIn")]
         public async Task<IActionResult> SignIn([FromBody] SignInModel model) {
+
+            #region Validate Model
+
+            var userInputValidated = _signInModelValidator.Validate(model);
+
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
+
+            #endregion
 
             #region Supply User Agent values
 
@@ -49,6 +69,20 @@ namespace Virpa.Mobile.API.v1.Controllers {
         [HttpPost("Sign-Out", Name = "SignOut")]
         public async Task<IActionResult> SignOut([FromBody] SignOutModel model) {
 
+            #region Validate Model
+
+            var userInputValidated = _signOutModelValidator.Validate(model);
+
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
+
+            #endregion
+
             #region Supply User Agent values
             model.UserAgent = UserAgent;
 
@@ -61,6 +95,20 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         [HttpPost("Generate-Token", Name = "GenerateToken")]
         public async Task<IActionResult> GenerateToken([FromBody] GenerateTokenModel model) {
+
+            #region Validate Model
+
+            var userInputValidated = _generateTokenModelValidator.Validate(model);
+
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
+
+            #endregion
 
             #region Supply User Agent values
             model.UserAgent = UserAgent;

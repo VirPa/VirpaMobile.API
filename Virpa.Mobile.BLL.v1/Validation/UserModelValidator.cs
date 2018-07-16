@@ -5,7 +5,7 @@ using Virpa.Mobile.DAL.v1.Model;
 namespace Virpa.Mobile.BLL.v1.Validation {
 
     public class UserModelValidator : AbstractValidator<CreateUserModel> {
-        protected UserModelValidator(ResponseBadRequest badRequest) {
+        public UserModelValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.Fullname).NotEmpty().WithMessage(badRequest.ErrFieldEmpty.ToString());
 
@@ -16,21 +16,21 @@ namespace Virpa.Mobile.BLL.v1.Validation {
     }
 
     public class UpdateUserModelValidator : AbstractValidator<UpdateUserModel> {
-        protected UpdateUserModelValidator(ResponseBadRequest badRequest) {
+        public UpdateUserModelValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.UserId).NotEmpty().WithMessage(badRequest.ErrFieldEmpty.ToString());
         }
     }
 
     public class SendEmailConfirmationValidator : AbstractValidator<SendEmailConfirmation> {
-        protected SendEmailConfirmationValidator(ResponseBadRequest badRequest) {
+        public SendEmailConfirmationValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.Email).EmailAddress().WithMessage(badRequest.ErrorInvalidEmailFormat.ToString());
         }
     }
 
     public class ConfirmEmailValidator : AbstractValidator<ConfirmEmailModel> {
-        protected ConfirmEmailValidator(ResponseBadRequest badRequest) {
+        public ConfirmEmailValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.UserId).NotEmpty().WithMessage(badRequest.ErrFieldEmpty.ToString());
 
@@ -39,7 +39,7 @@ namespace Virpa.Mobile.BLL.v1.Validation {
     }
 
     public class ChangePasswordValidator : AbstractValidator<ChangePasswordModel> {
-        protected ChangePasswordValidator(ResponseBadRequest badRequest) {
+        public ChangePasswordValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.Email).EmailAddress().WithMessage(badRequest.ErrorInvalidEmailFormat.ToString());
 
@@ -50,14 +50,14 @@ namespace Virpa.Mobile.BLL.v1.Validation {
     }
 
     public class ForgotPasswordValidator : AbstractValidator<ForgotPasswordModel> {
-        protected ForgotPasswordValidator(ResponseBadRequest badRequest) {
+        public ForgotPasswordValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.Email).EmailAddress().WithMessage(badRequest.ErrorInvalidEmailFormat.ToString());
         }
     }
 
     public class ResetPasswordValidator : AbstractValidator<ResetPasswordModel> {
-        protected ResetPasswordValidator(ResponseBadRequest badRequest) {
+        public ResetPasswordValidator(ResponseBadRequest badRequest) {
 
             RuleFor(a => a.UserId).NotEmpty().WithMessage(badRequest.ErrFieldEmpty.ToString());
 

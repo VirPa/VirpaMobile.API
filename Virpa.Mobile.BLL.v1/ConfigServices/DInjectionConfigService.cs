@@ -33,7 +33,16 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             //VALIDATION
             services.AddTransient<UserModelValidator>();
+            services.AddTransient<UpdateUserModelValidator>();
+            services.AddTransient<SendEmailConfirmationValidator>();
+            services.AddTransient<ConfirmEmailValidator>();
+            services.AddTransient<ChangePasswordValidator>();
+            services.AddTransient<ForgotPasswordValidator>();
+            services.AddTransient<ResetPasswordValidator>();
 
+            services.AddTransient<SignInModelValidator>();
+            services.AddTransient<SignOutModelValidator>();
+            services.AddTransient<GenerateTokenModelValidator>();
             return services;
         }
     }

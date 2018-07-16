@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Virpa.Mobile.BLL.v1.Helpers;
 using Virpa.Mobile.BLL.v1.Repositories.Interface;
@@ -15,41 +16,43 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         #region Initialization
 
+        private readonly List<string> _infos = new List<string>();
+
         private readonly IMyUser _user;
 
-        //private readonly ResponseBadRequest _badRequest;
-        //private readonly UserModelValidator _userModelValidator;
-        //private readonly UpdateUserModelValidator _updateUserModelValidator;
-        //private readonly SendEmailConfirmationValidator _sendEmailConfirmationValidator;
-        //private readonly ConfirmEmailValidator _confirmEmailValidator;
-        //private readonly ChangePasswordValidator _changePasswordValidator;
-        //private readonly ForgotPasswordValidator _forgotPasswordValidator;
-        //private readonly ResetPasswordValidator _resetPasswordValidator;
+        private readonly ResponseBadRequest _badRequest;
+        private readonly UserModelValidator _userModelValidator;
+        private readonly UpdateUserModelValidator _updateUserModelValidator;
+        private readonly SendEmailConfirmationValidator _sendEmailConfirmationValidator;
+        private readonly ConfirmEmailValidator _confirmEmailValidator;
+        private readonly ChangePasswordValidator _changePasswordValidator;
+        private readonly ForgotPasswordValidator _forgotPasswordValidator;
+        private readonly ResetPasswordValidator _resetPasswordValidator;
 
         #endregion
 
         #region Constructor
 
         public UserController(IMyUser user,
-            //UserModelValidator userModelValidator, 
-            //UpdateUserModelValidator updateUserModelValidator, 
-            //SendEmailConfirmationValidator sendEmailConfirmationValidator,
-            //ConfirmEmailValidator confirmEmailValidator,
-            //ChangePasswordValidator changePasswordValidator,
-            //ForgotPasswordValidator forgotPasswordValidator,
-            //ResetPasswordValidator resetPasswordValidator,
+            UserModelValidator userModelValidator,
+            UpdateUserModelValidator updateUserModelValidator,
+            SendEmailConfirmationValidator sendEmailConfirmationValidator,
+            ConfirmEmailValidator confirmEmailValidator,
+            ChangePasswordValidator changePasswordValidator,
+            ForgotPasswordValidator forgotPasswordValidator,
+            ResetPasswordValidator resetPasswordValidator,
             ResponseBadRequest badRequest) {
 
             _user = user;
 
-            //_badRequest = badRequest;
-            //_userModelValidator = userModelValidator;
-            //_updateUserModelValidator = updateUserModelValidator;
-            //_sendEmailConfirmationValidator = sendEmailConfirmationValidator;
-            //_confirmEmailValidator = confirmEmailValidator;
-            //_changePasswordValidator = changePasswordValidator;
-            //_forgotPasswordValidator = forgotPasswordValidator;
-            //_resetPasswordValidator = resetPasswordValidator;
+            _badRequest = badRequest;
+            _userModelValidator = userModelValidator;
+            _updateUserModelValidator = updateUserModelValidator;
+            _sendEmailConfirmationValidator = sendEmailConfirmationValidator;
+            _confirmEmailValidator = confirmEmailValidator;
+            _changePasswordValidator = changePasswordValidator;
+            _forgotPasswordValidator = forgotPasswordValidator;
+            _resetPasswordValidator = resetPasswordValidator;
         }
 
         #endregion
@@ -59,13 +62,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _userModelValidator.Validate(model);
+            var userInputValidated = _userModelValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }  
 
             #endregion
 
@@ -79,13 +84,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _updateUserModelValidator.Validate(model);
+            var userInputValidated = _updateUserModelValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
 
             #endregion
 
@@ -107,13 +114,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _sendEmailConfirmationValidator.Validate(model);
+            var userInputValidated = _sendEmailConfirmationValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
 
             #endregion
 
@@ -127,13 +136,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _sendEmailConfirmationValidator.Validate(model);
+            var userInputValidated = _confirmEmailValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
 
             #endregion
 
@@ -147,13 +158,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _changePasswordValidator.Validate(model);
+            var userInputValidated = _changePasswordValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
 
             #endregion
 
@@ -167,13 +180,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _forgotPasswordValidator.Validate(model);
+            var userInputValidated = _forgotPasswordValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
 
             #endregion
 
@@ -187,13 +202,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #region Validate Model
 
-            //var userInputValidated = _resetPasswordValidator.Validate(model);
+            var userInputValidated = _resetPasswordValidator.Validate(model);
 
-            //if (!userInputValidated.IsValid)
-            //    return BadRequest(new {
-            //        Succeeded = false,
-            //        Message = _badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage))
-            //    });
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
 
             #endregion
 

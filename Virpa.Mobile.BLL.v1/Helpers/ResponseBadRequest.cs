@@ -8,6 +8,7 @@
         private const int CAntiForgeryRelated = 5;
         private const int CFieldEmpty = 6;
         private const int CInvalidEmailFormat = 7;
+        private const int CInvalidType = 8;
 
         public int ErrImageFormat => CImageFormat;
         public int ErrFileEmpty => CFileEmpty;
@@ -16,6 +17,7 @@
         public int ErrAntiForgeryRelated => CAntiForgeryRelated;
         public int ErrFieldEmpty => CFieldEmpty;
         public int ErrorInvalidEmailFormat => CInvalidEmailFormat;
+        public int ErrorInvalidType => CInvalidType;
 
         public Error ShowError(int errorCode) {
 
@@ -27,65 +29,55 @@
             
             if (errorCode == ErrImageFormat) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "Sketch, Psd, Pdf, Png, Jpeg and Gif only. File format not supported."
+                     Message = "Sketch, Psd, Pdf, Png, Jpeg and Gif only. File format not supported."
                 };
             }
 
             if (errorCode == ErrFileEmpty) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "File is empty. Kindly upload atleast one(1) document file."
+                     Message = "File is empty. Kindly upload atleast one(1) document file."
                 };
             }
 
             if (errorCode == ErrTokenMissing) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "X-XSRF-TOKEN is missing. Request headers must contain the Antiforgery token."
+                     Message = "X-XSRF-TOKEN is missing. Request headers must contain the Antiforgery token."
                 };
             }
 
             if (errorCode == ErrAntiForgeryTokenExpiry) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "The Antiforgery token is no longer valid since it had expired."
+                     Message = "The Antiforgery token is no longer valid since it had expired."
                 };
             }
 
             if (errorCode == ErrAntiForgeryRelated) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "Antiforgery Related Error."
+                     Message = "Antiforgery Related Error."
                 };
             }
 
             if (errorCode == ErrFieldEmpty) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "Required field is empty."
+                     Message = "Required field is empty."
                 };
             }
 
             if (errorCode == ErrorInvalidEmailFormat) {
                 return new Error {
-                     Code = 400
-                   , Status = "Failed"
-                   , Message = "Email format is invalid."
+                     Message = "Email format is invalid."
+                };
+            }
+
+            if (errorCode == ErrorInvalidType) {
+                return new Error {
+                    Message = "Invalid token resource type."
                 };
             }
 
             return null;
         }
         public class Error {
-            public int Code { get; set; }
-            public string Status { get; set; }
             public string Message { get; set; }
         }
     }

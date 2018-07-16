@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="html-files\Confirm-Email-Template.html" />
+    <None Remove="html-files\Forgot-Password-Template.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.1.0" />
     <PackageReference Include="JwtCore" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
@@ -25,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="html-files\" />
     <Folder Include="Manifest\" />
     <Folder Include="logo\" />
     <Folder Include="Models\" />
@@ -37,12 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="html-files\Confirm-Email-Template.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="html-files\Forgot-Password-Template.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="logo\iDormz_logo.PNG">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
