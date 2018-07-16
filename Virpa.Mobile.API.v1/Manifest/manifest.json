@@ -1,0 +1,28 @@
+﻿{
+  "Info": {
+    "Name": "VirPA Technology",
+    "Protocol": "http://",
+    "ApiKey": "gStFOFmhfot7neOa8hl6yU9swkVFICVFeoQTPWN0hVD94QDxHnSP0OAe2hvsnPXzHnRceoR73Jw1ZeAgnvX1TTLLqi9HKnXYL6d",
+    "SendEmail": true
+  },
+  "Manifest": {
+    "IsEnabled": true
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=virpastaging.calkmizbqboe.ap-southeast-1.rds.amazonaws.com;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=virpaadmin;Password=VtLyHj5ytn88LVRZKlUmNEnCjjLibfF4ljcWSQFFT8"
+  },
+  "JwtTokens": {
+    "Key": "0987654321RUSH_B",
+    "Issuer": "http://virpa.technology",
+    "AccessTokenExpiryMins": 30,
+    "RefreshTokenExpiryMins": 86400
+  },
+  "EmailNotification": {
+    "Smtp": "smtp.gmail.com",
+    "Port": 587,
+    "SmtpUsername": "virpa.technology@gmail.com",
+    "SmtpPassword": "himitsu123",
+    "SenderEmail": "virpa.technology@gmail.com",
+    "EmailPassword": "himitsu123"
+  }
+}
