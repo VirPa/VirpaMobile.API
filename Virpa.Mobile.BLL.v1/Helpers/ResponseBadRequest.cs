@@ -3,21 +3,17 @@
     public class ResponseBadRequest {
         private const int CImageFormat = 1;
         private const int CFileEmpty = 2;
-        private const int CTokenMissing = 3;
-        private const int CAntiForgeryTokenExpiry = 4;
-        private const int CAntiForgeryRelated = 5;
-        private const int CFieldEmpty = 6;
-        private const int CInvalidEmailFormat = 7;
-        private const int CInvalidType = 8;
+        private const int CFieldEmpty = 3;
+        private const int CInvalidEmailFormat = 4;
+        private const int CInvalidType = 5;
+        private const int CFileTooLarge = 6;
 
-        public int ErrImageFormat => CImageFormat;
-        public int ErrFileEmpty => CFileEmpty;
-        public int ErrTokenMissing => CTokenMissing;
-        public int ErrAntiForgeryTokenExpiry => CAntiForgeryTokenExpiry;
-        public int ErrAntiForgeryRelated => CAntiForgeryRelated;
-        public int ErrFieldEmpty => CFieldEmpty;
-        public int ErrorInvalidEmailFormat => CInvalidEmailFormat;
-        public int ErrorInvalidType => CInvalidType;
+        public static int ErrImageFormat => CImageFormat;
+        public static int ErrFileEmpty => CFileEmpty;
+        public static int ErrFieldEmpty => CFieldEmpty;
+        public static int ErrorInvalidEmailFormat => CInvalidEmailFormat;
+        public static int ErrorInvalidType => CInvalidType;
+        public static int ErrFileTooLarge => CFileTooLarge;
 
         public Error ShowError(int errorCode) {
 
@@ -35,25 +31,7 @@
 
             if (errorCode == ErrFileEmpty) {
                 return new Error {
-                     Message = "File is empty. Kindly upload atleast one(1) document file."
-                };
-            }
-
-            if (errorCode == ErrTokenMissing) {
-                return new Error {
-                     Message = "X-XSRF-TOKEN is missing. Request headers must contain the Antiforgery token."
-                };
-            }
-
-            if (errorCode == ErrAntiForgeryTokenExpiry) {
-                return new Error {
-                     Message = "The Antiforgery token is no longer valid since it had expired."
-                };
-            }
-
-            if (errorCode == ErrAntiForgeryRelated) {
-                return new Error {
-                     Message = "Antiforgery Related Error."
+                     Message = "File is empty. Kindly upload atleast one(1) attachment file."
                 };
             }
 
@@ -72,6 +50,12 @@
             if (errorCode == ErrorInvalidType) {
                 return new Error {
                     Message = "Invalid token resource type."
+                };
+            }
+
+            if (errorCode == ErrFileTooLarge) {
+                return new Error {
+                    Message = "File is too large. Limit of 20Mb only."
                 };
             }
 

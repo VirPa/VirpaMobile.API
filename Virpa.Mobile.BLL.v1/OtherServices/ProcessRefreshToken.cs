@@ -21,7 +21,7 @@ namespace Virpa.Mobile.BLL.v1.OtherServices {
 
         public async Task<CustomResponse<TokenResource>> GenerateRefreshToken(RefreshTokenGetModel model) {
 
-            var userSession = _context.AspNetUserSessions.FirstOrDefault(t => t.UserId == model.UserId && t.DeviceName == model.UserAgent);
+            var userSession = _context.AspNetUserSessions.FirstOrDefault(t => t.UserId == model.UserId && t.Token == model.Token);
 
             var token = Guid.NewGuid().ToString().Replace("-", "") + "." + model.UserId.Replace("-", "");
 

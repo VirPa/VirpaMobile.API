@@ -25,7 +25,6 @@
     <Folder Include="ConfigServices\" />
     <Folder Include="Helpers\" />
     <Folder Include="Middlewares\" />
-    <Folder Include="Repositories\Interface\" />
   </ItemGroup>
 
 </Project>

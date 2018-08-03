@@ -23,13 +23,15 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<AspNetUserSessions> AspNetUserSessions { get; set; }
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
+        public virtual DbSet<Attachments> Attachments { get; set; }
+        public virtual DbSet<Skills> Skills { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=virpastaging.calkmizbqboe.ap-southeast-1.rds.amazonaws.com;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=virpaadmin;Password=VtLyHj5ytn88LVRZKlUmNEnCjjLibfF4ljcWSQFFT8");
+                optionsBuilder.UseSqlServer("Data Source=LAPTOP-53FBB455\\SQLEXPRESS;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=sa;Password=simple");
             }
         }
 
@@ -142,6 +144,26 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
             modelBuilder.Entity<AspNetUserTokens>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+            });
+
+            modelBuilder.Entity<Attachments>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.CodeName).HasMaxLength(450);
+
+                entity.Property(e => e.Extension).HasMaxLength(50);
+
+                entity.Property(e => e.FilePath).HasMaxLength(450);
+
+                entity.Property(e => e.Name).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<Skills>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Name).HasMaxLength(450);
             });
         }
     }

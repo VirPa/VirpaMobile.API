@@ -22,6 +22,10 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             services.AddTransient<IMyAuthentication, MyAuthentication>();
 
+            services.AddTransient<IMyAttachment, MyAttachment>();
+
+            services.AddTransient<IMySkills, MySkills>();
+
             services.AddTransient<VirpaMobileContext>();
 
             services.AddTransient<ResponseBadRequest>();
@@ -43,6 +47,9 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
             services.AddTransient<SignInModelValidator>();
             services.AddTransient<SignOutModelValidator>();
             services.AddTransient<GenerateTokenModelValidator>();
+
+            services.AddTransient<AttachmentModelValidator>();
+
             return services;
         }
     }

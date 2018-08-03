@@ -173,12 +173,12 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             }
             #endregion
 
-            var userToken = _context.AspNetUserSessions.FirstOrDefault(t => t.UserId == user.Id && t.DeviceName == model.UserAgent);
+            var userToken = _context.AspNetUserSessions.FirstOrDefault(t => t.UserId == user.Id && t.Token == model.TokenResource.Token);
 
             #region Validate Token if Registered
 
             if (userToken == null) {
-                _infos.Add("The account never Signed In.");
+                _infos.Add("The account never Signed In or the Refresh Token is wrong.");
 
                 return new CustomResponse<TokenResource> {
                     Message = _infos
@@ -194,7 +194,6 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             #endregion
 
             #region Check Refresh Token Validity
-            if (userToken.Token != model.TokenResource.Token) _infos.Add("The Refresh Token is wrong.");
 
             if (!(userToken.Validity ?? true)) _infos.Add("The Refresh Token is invalid.");
 
@@ -228,7 +227,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     var token = new JwtSecurityToken(_options.Value.Issuer,
                         _options.Value.Issuer,
                         claims,
-                        expires: DateTime.Now.AddDays(_options.Value.AccessTokenExpiryMins),
+                        expires: DateTime.Now.AddMinutes(_options.Value.AccessTokenExpiryMins),
                         signingCredentials: creds);
 
                     return new CustomResponse<TokenResource> {
@@ -244,7 +243,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     UserId = user.Id,
                     UserAgent = model.UserAgent,
                     AppVersion = model.AppVersion,
-                    ApiVersion = "1.0"
+                    ApiVersion = "1.0",
+                    Token = tokenResourceModel.Token
                 });
 
                 return new CustomResponse<TokenResource> {

@@ -14,6 +14,8 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public string AppVersion { get; set; }
 
         public string ApiVersion { get; set; }
+
+        public string Token { get; set; }
     }
 
     public class TokenResource {

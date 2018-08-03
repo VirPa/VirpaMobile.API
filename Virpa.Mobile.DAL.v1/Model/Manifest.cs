@@ -5,6 +5,14 @@
 
         public string Protocol { get; set; }
 
+        public string Uri { get; set; }
+
+        public string Api { get; set; }
+
+        public string Docs { get; set; }
+
+        public string Attachments { get; set; }
+
         public string ApiKey { get; set; }
 
         public bool SendEmail { get; set; }
@@ -33,5 +41,8 @@
         public string SenderEmail { get; set; }
 
         public string EmailPassword { get; set; }
+
+        //Attachments
+        public string DirectoryPath { get; set; }
     }
 }

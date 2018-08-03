@@ -19,6 +19,12 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
             CreateMap<ApplicationUser, UserResponse>();
 
             CreateMap<AspNetUsers, UserResponse>();
+
+            CreateMap<Skills, GetSkillsModel>();
+
+            CreateMap<SaveAttachments, Attachments>()
+                .ForMember(p => p.IsActive, f => f.ResolveUsing(p => true))
+                .ForMember(p => p.CreatedAt, f => f.ResolveUsing(p => DateTime.UtcNow));
         }
     }
 
