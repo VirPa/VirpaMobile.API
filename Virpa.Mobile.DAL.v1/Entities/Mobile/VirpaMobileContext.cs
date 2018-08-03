@@ -31,7 +31,7 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=LAPTOP-53FBB455\\SQLEXPRESS;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=sa;Password=simple");
+                optionsBuilder.UseSqlServer("Data Source=virpastaging.calkmizbqboe.ap-southeast-1.rds.amazonaws.com;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=virpaadmin;Password=VtLyHj5ytn88LVRZKlUmNEnCjjLibfF4ljcWSQFFT8");
             }
         }
 
@@ -157,6 +157,8 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.Property(e => e.FilePath).HasMaxLength(450);
 
                 entity.Property(e => e.Name).HasMaxLength(450);
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
             });
 
             modelBuilder.Entity<Skills>(entity =>

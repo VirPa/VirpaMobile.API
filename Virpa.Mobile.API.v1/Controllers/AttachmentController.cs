@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Virpa.Mobile.BLL.v1.Helpers;
 using Virpa.Mobile.BLL.v1.Repositories.Interface;
 using Virpa.Mobile.BLL.v1.Validation;
@@ -39,12 +40,12 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         #endregion
 
-        [HttpPost("Attachments", Name = "Attachment")]
-        public async Task<IActionResult> Attachment(ICollection<IFormFile> attachments, string email) {
-
+        [HttpPost("Attachments", Name = "Attachments")]
+        public async Task<IActionResult> Attachment(ICollection<IFormFile> attachments) {
+            
             var model = new AttachmentModel {
                 Attachments = attachments,
-                Email = email
+                Email = UserEmail
             };
 
             #region Validate Model
@@ -68,6 +69,18 @@ namespace Virpa.Mobile.API.v1.Controllers {
             var attached = await _myAttachment.Attach(model);
 
             return Ok(attached);
+        }
+
+        [HttpGet("Attachments", Name = "Attachments")]
+        public async Task<IActionResult> Attachments() {
+
+            var model = new GetAttachments {
+                Email = UserEmail
+            };
+
+            var fetchedAttachments = await _myAttachment.GetAttachments(model);
+
+            return Ok(fetchedAttachments);
         }
     }
 }

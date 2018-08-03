@@ -22,7 +22,7 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             CreateMap<Skills, GetSkillsModel>();
 
-            CreateMap<SaveAttachments, Attachments>()
+            CreateMap<GetAttachmentsResponse, Attachments>()
                 .ForMember(p => p.IsActive, f => f.ResolveUsing(p => true))
                 .ForMember(p => p.CreatedAt, f => f.ResolveUsing(p => DateTime.UtcNow));
         }

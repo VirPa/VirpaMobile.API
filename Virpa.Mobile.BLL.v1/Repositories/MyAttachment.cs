@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Virpa.Mobile.BLL.v1.Repositories.Interface;
 using Virpa.Mobile.DAL.v1.Entities.Mobile;
@@ -40,7 +41,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         #endregion
 
-        public async Task<CustomResponse<List<SaveAttachments>>> Attach(AttachmentModel model) {
+        public async Task<CustomResponse<List<GetAttachmentsResponse>>> Attach(AttachmentModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -50,13 +51,13 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 _infos.Add("Username/email not exist.");
 
-                return new CustomResponse<List<SaveAttachments>> {
+                return new CustomResponse<List<GetAttachmentsResponse>> {
                     Message = _infos
                 };
             }
             #endregion
 
-            var attachments = new List<SaveAttachments>();
+            var attachments = new List<GetAttachmentsResponse>();
 
             foreach (var attachment in model.Attachments) {
 
@@ -71,11 +72,13 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                         await attachment.CopyToAsync(fileStream);
 
-                        attachments.Add(new SaveAttachments {
+                        attachments.Add(new GetAttachmentsResponse {
+                            UserId = user.Id,
                             Name = attachment.FileName,
                             CodeName = newFileName,
                             Extension = Path.GetExtension(attachment.FileName),
                             FilePath = _options.Value.Protocol + _options.Value.Uri + _options.Value.Attachments + newFileName,
+                            CreatedAt = DateTime.UtcNow
                         });
                     }
                 }
@@ -87,9 +90,33 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             await _context.SaveChangesAsync();
 
-            return new CustomResponse<List<SaveAttachments>> {
+            return new CustomResponse<List<GetAttachmentsResponse>> {
                 Succeed = true,
                 Data = attachments
+            };
+        }
+
+        public async Task<CustomResponse<List<GetAttachmentsResponse>>> GetAttachments(GetAttachments model) {
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            #region Validate User
+
+            if (user == null) {
+
+                _infos.Add("Username/email not exist.");
+
+                return new CustomResponse<List<GetAttachmentsResponse>> {
+                    Message = _infos
+                };
+            }
+            #endregion
+
+            var attachments = _context.Attachments.Where(a => a.IsActive == true && a.UserId == user.Id).ToList();
+
+            return new CustomResponse<List<GetAttachmentsResponse>> {
+                Succeed = true,
+                Data = _mapper.Map<List<GetAttachmentsResponse>>(attachments)
             };
         }
     }

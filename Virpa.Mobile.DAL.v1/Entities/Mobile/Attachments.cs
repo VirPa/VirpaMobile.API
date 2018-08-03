@@ -6,6 +6,7 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
     public partial class Attachments
     {
         public string Id { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
         public string CodeName { get; set; }
         public string Extension { get; set; }

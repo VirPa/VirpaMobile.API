@@ -13,7 +13,7 @@
     "IsEnabled": true
   },
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=LAPTOP-53FBB455\\SQLEXPRESS;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=sa;Password=simple"
+    "DefaultConnection": "Data Source=virpastaging.calkmizbqboe.ap-southeast-1.rds.amazonaws.com;Initial Catalog=VirpaMobileAPI.v1;Persist Security Info=True;User ID=virpaadmin;Password=VtLyHj5ytn88LVRZKlUmNEnCjjLibfF4ljcWSQFFT8"
   },
   "JwtTokens": {
     "Key": "0987654321RUSH_B",
