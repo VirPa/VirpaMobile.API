@@ -25,6 +25,7 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
         public virtual DbSet<Attachments> Attachments { get; set; }
         public virtual DbSet<Skills> Skills { get; set; }
+        public virtual DbSet<UserSkills> UserSkills { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -166,6 +167,13 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Name).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<UserSkills>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
             });
         }
     }
