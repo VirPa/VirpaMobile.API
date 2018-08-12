@@ -6,6 +6,11 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
     public class GetSkillsModel {
 
+        public List<GetSkillsListModel> Skills { get; set; }
+    }
+
+    public class GetSkillsListModel {
+
         public long Id { get; set; }
 
         public string Name { get; set; }
@@ -23,6 +28,11 @@ namespace Virpa.Mobile.DAL.v1.Model {
     }
 
     public class GetMySkillsResponseModel {
+
+        public List<GetMySkillsListResponseModel> Skills { get; set; }
+    }
+
+    public class GetMySkillsListResponseModel {
 
         public long Id { get; set; }
 

@@ -22,9 +22,18 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             CreateMap<Skills, GetSkillsModel>();
 
-            CreateMap<GetAttachmentsResponse, Attachments>()
-                .ForMember(p => p.IsActive, f => f.ResolveUsing(p => true))
-                .ForMember(p => p.CreatedAt, f => f.ResolveUsing(p => DateTime.UtcNow));
+            CreateMap<Attachments, GetAttachmentsListResponse>();
+
+            CreateMap<PostMyFeedModel, Feeds>()
+                .ForMember(p => p.UpVoteCounts, f => f.ResolveUsing(p => 0))
+                .ForMember(p => p.BiddingCounts, f => f.ResolveUsing(p => 0))
+                .ForMember(p => p.CreatedAt, f => f.ResolveUsing(p => DateTime.UtcNow))
+                .ForMember(p => p.UpdatedAt, f => f.ResolveUsing(p => DateTime.UtcNow))
+                .ForMember(p => p.ExpiredAt, f => f.ResolveUsing(p => DateTime.UtcNow.AddDays(p.ExpiredOn)))
+                .ForMember(p => p.Status, f => f.ResolveUsing(p => 0));
+
+            CreateMap<Feeds, PostMyFeedDetailResponseModel>()
+                .ForMember(p => p.FeedId, f => f.ResolveUsing(p => p.Id));
         }
     }
 

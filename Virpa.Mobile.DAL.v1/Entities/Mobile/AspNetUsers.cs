@@ -31,6 +31,8 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public string MobileNumber { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public long? FollowersCount { get; set; }
+        public string BackgroundSummary { get; set; }
 
         public ICollection<AspNetUserClaims> AspNetUserClaims { get; set; }
         public ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }

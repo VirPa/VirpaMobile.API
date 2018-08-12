@@ -39,39 +39,43 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         
         #region Get
 
-        public CustomResponse<List<GetSkillsModel>> GetSkills() {
+        public CustomResponse<GetSkillsModel> GetSkills() {
 
             var skills = _context.Skills.Where(s => s.IsActive == true).ToList();
 
-            return new CustomResponse<List<GetSkillsModel>> {
+            return new CustomResponse<GetSkillsModel> {
                 Succeed = true,
-                Data = _mapper.Map<List<GetSkillsModel>>(skills)
+                Data = new GetSkillsModel {
+                    Skills = _mapper.Map<List<GetSkillsListModel>>(skills)
+                }
             };
         }
 
-        public async Task<CustomResponse<List<GetMySkillsResponseModel>>> GetMySkills(GetMySkillsModel model) {
+        public async Task<CustomResponse<GetMySkillsResponseModel>> GetMySkills(GetMySkillsModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             var skills = (from us in _context.UserSkills
                          join s in _context.Skills on us.SkillId equals s.Id
                          where us.UserId == user.Id
-                         select new GetMySkillsResponseModel {
+                         select new GetMySkillsListResponseModel {
                              Id = us.SkillId ?? 0,
                              Name = s.Name,
                              Description = s.Description
                          }).ToList();
 
-            return new CustomResponse<List<GetMySkillsResponseModel>> {
+            return new CustomResponse<GetMySkillsResponseModel> {
                 Succeed = true,
-                Data = skills
+                Data = new GetMySkillsResponseModel {
+                    Skills = skills
+                }
             };
         }
         #endregion
 
         #region Post
 
-        public async Task<CustomResponse<List<GetMySkillsResponseModel>>> PostMySkills(PostMySkillsModel model) {
+        public async Task<CustomResponse<GetMySkillsResponseModel>> PostMySkills(PostMySkillsModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -94,7 +98,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var fetchedMyRefreshedSkills = GetMySkills(new GetMySkillsModel{Email = model.Email});
 
-            return new CustomResponse<List<GetMySkillsResponseModel>> {
+            return new CustomResponse<GetMySkillsResponseModel> {
                 Succeed = true,
                 Data = fetchedMyRefreshedSkills.Result.Data
             };

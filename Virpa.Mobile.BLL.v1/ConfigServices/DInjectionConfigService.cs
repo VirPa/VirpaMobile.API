@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Virpa.Mobile.BLL.v1.DataManagers;
+using Virpa.Mobile.BLL.v1.DataManagers.Interface;
 using Virpa.Mobile.BLL.v1.Helpers;
 using Virpa.Mobile.BLL.v1.Methods;
 using Virpa.Mobile.BLL.v1.OtherServices;
@@ -26,9 +28,14 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             services.AddTransient<IMySkills, MySkills>();
 
+            services.AddTransient<IMyFeeds, MyFeeds>();
+
             services.AddTransient<VirpaMobileContext>();
 
             services.AddTransient<ResponseBadRequest>();
+
+            //DATA MANAGERS
+            services.AddTransient<IFeedsDataManager, FeedsDataManager>();
 
             //OTHER SERVICES
             services.AddTransient<IEmailSender, EmailSender>();
@@ -49,6 +56,9 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
             services.AddTransient<GenerateTokenModelValidator>();
 
             services.AddTransient<AttachmentModelValidator>();
+
+            services.AddTransient<FeedsModelValidator>();
+            services.AddTransient<FeedCoverPhotoModelValidator>();
 
             return services;
         }

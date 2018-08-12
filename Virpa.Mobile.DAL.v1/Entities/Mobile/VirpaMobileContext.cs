@@ -24,6 +24,11 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public virtual DbSet<AspNetUserSessions> AspNetUserSessions { get; set; }
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
         public virtual DbSet<Attachments> Attachments { get; set; }
+        public virtual DbSet<FeedBidders> FeedBidders { get; set; }
+        public virtual DbSet<FeedMessages> FeedMessages { get; set; }
+        public virtual DbSet<Feeds> Feeds { get; set; }
+        public virtual DbSet<Followers> Followers { get; set; }
+        public virtual DbSet<ReferenceData> ReferenceData { get; set; }
         public virtual DbSet<Skills> Skills { get; set; }
         public virtual DbSet<UserSkills> UserSkills { get; set; }
 
@@ -114,6 +119,8 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
 
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
+                entity.Property(e => e.BackgroundSummary).HasMaxLength(450);
+
                 entity.Property(e => e.Email).HasMaxLength(256);
 
                 entity.Property(e => e.Fullname).HasMaxLength(256);
@@ -155,11 +162,62 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
 
                 entity.Property(e => e.Extension).HasMaxLength(50);
 
+                entity.Property(e => e.FeedId).HasMaxLength(450);
+
                 entity.Property(e => e.FilePath).HasMaxLength(450);
 
                 entity.Property(e => e.Name).HasMaxLength(450);
 
                 entity.Property(e => e.UserId).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<FeedBidders>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.FeedId).HasMaxLength(450);
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<FeedMessages>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.BidderId).HasMaxLength(450);
+
+                entity.Property(e => e.FeedId).HasMaxLength(450);
+
+                entity.Property(e => e.FeederId).HasMaxLength(450);
+
+                entity.Property(e => e.Turn).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<Feeds>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Budget).HasColumnType("decimal(18, 6)");
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<Followers>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.FollowedId).HasMaxLength(450);
+
+                entity.Property(e => e.FollowerId).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<ReferenceData>(entity =>
+            {
+                entity.Property(e => e.RefId).HasMaxLength(450);
+
+                entity.Property(e => e.RefKey).HasMaxLength(450);
+
+                entity.Property(e => e.Value).HasMaxLength(450);
             });
 
             modelBuilder.Entity<Skills>(entity =>

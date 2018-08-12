@@ -64,20 +64,33 @@ namespace Virpa.Mobile.API.v1.Controllers {
             }
 
             #endregion
-            
+
+            model.Type = 1;
+
             var attached = await _myAttachment.Attach(model);
 
             return Ok(attached);
         }
 
         [HttpGet("MyAttachments", Name = "MyAttachments")]
-        public async Task<IActionResult> Attachments() {
+        public async Task<IActionResult> Attachments(int type = 0) {
 
             var model = new GetAttachments {
-                Email = UserEmail
+                Email = UserEmail,
+                Type = type
             };
 
             var fetchedAttachments = await _myAttachment.GetAttachments(model);
+
+            return Ok(fetchedAttachments);
+        }
+
+        [HttpPost("MyAttachments/Delete", Name = "DeleteMyAttachments")]
+        public async Task<IActionResult> Attachments([FromBody] DeleteAttachments model)  {
+
+            model.Email = UserEmail;
+
+            var fetchedAttachments = await _myAttachment.DeleteAttachments(model);
 
             return Ok(fetchedAttachments);
         }
