@@ -25,6 +25,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         private readonly IOptions<Manifest> _options;
         private readonly IMapper _mapper;
         private readonly IProcessRefreshToken _refreshToken;
+        private readonly IMyUser _user;
 
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -37,6 +38,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         public MyAuthentication(IOptions<Manifest> options,
             IMapper mapper,
             IProcessRefreshToken refreshToken,
+            IMyUser user,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             VirpaMobileContext context) {
@@ -44,6 +46,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             _options = options;
             _mapper = mapper;
             _refreshToken = refreshToken;
+            _user = user;
 
             _signInManager = signInManager;
             _userManager = userManager;
@@ -121,7 +124,9 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                             ExpiredAt = refreshedToken.Result.Data.ExpiredAt
                         }
                     },
-                    User = _mapper.Map<UserResponse>(user)
+                    User = new UserResponse {
+                        User = _mapper.Map<UserDetails>(user)
+                    }
                 }
             };
         }
@@ -157,7 +162,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             };
         }
 
-        public async Task<CustomResponse<TokenResource>> GenerateToken(GenerateTokenModel model) {
+        public async Task<CustomResponse<GenerateTokenResponseModel>> GenerateToken(GenerateTokenModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.UserName);
 
@@ -167,7 +172,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 _infos.Add("Username/email not exist.");
 
-                return new CustomResponse<TokenResource> {
+                return new CustomResponse<GenerateTokenResponseModel> {
                     Message = _infos
                 };
             }
@@ -180,7 +185,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             if (userToken == null) {
                 _infos.Add("The account never Signed In or the Refresh Token is wrong.");
 
-                return new CustomResponse<TokenResource> {
+                return new CustomResponse<GenerateTokenResponseModel> {
                     Message = _infos
                 };
             }
@@ -200,7 +205,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             if (userToken.TokenExpiredAt < DateTime.UtcNow && model.TokenResource.Type == "session") _infos.Add("The Refresh Token is expired.");
             
             if (_infos.Count > 0) {
-                return new CustomResponse<TokenResource> {
+                return new CustomResponse<GenerateTokenResponseModel> {
                     Message = _infos
                 };
             }
@@ -213,7 +218,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             #region Local Methods
 
-            CustomResponse<TokenResource> RefreshToken(GenerateTokenResourceModel tokenResourceModel) {
+            CustomResponse<GenerateTokenResponseModel> RefreshToken(GenerateTokenResourceModel tokenResourceModel) {
 
                 if (tokenResourceModel.Type == "session") {
                     var claims = new[] {
@@ -230,11 +235,16 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                         expires: DateTime.Now.AddMinutes(_options.Value.AccessTokenExpiryMins),
                         signingCredentials: creds);
 
-                    return new CustomResponse<TokenResource> {
+                    return new CustomResponse<GenerateTokenResponseModel> {
                         Succeed = true,
-                        Data = new TokenResource {
-                            Token = new JwtSecurityTokenHandler().WriteToken(token),
-                            ExpiredAt = token.ValidTo
+                        Data = new GenerateTokenResponseModel {
+                            Authorization = new TokenResource {
+                                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                                ExpiredAt = token.ValidTo
+                            },
+                            User = _user.GetUser(new GetUserModel {
+                                UserId = user.Id
+                            }).Result.Data
                         }
                     };
                 }
@@ -247,9 +257,14 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     Token = tokenResourceModel.Token
                 });
 
-                return new CustomResponse<TokenResource> {
+                return new CustomResponse<GenerateTokenResponseModel> {
                     Succeed = refreshToken.Result.Succeed,
-                    Data = refreshToken.Result.Data,
+                    Data = new GenerateTokenResponseModel {
+                        Authorization = refreshToken.Result.Data,
+                        User = _user.GetUser(new GetUserModel {
+                            UserId = user.Id
+                        }).Result.Data
+                    },
                     Message = refreshToken.Result.Message
                 };
             }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Virpa.Mobile.DAL.v1.Entities.Mobile
 {
-    public partial class Attachments
+    public partial class Files
     {
         public string Id { get; set; }
         public string UserId { get; set; }
@@ -18,6 +18,5 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public DateTime? UpdatedAt { get; set; }
         public bool? IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }
-        public bool? IsProfilePicture { get; set; }
     }
 }

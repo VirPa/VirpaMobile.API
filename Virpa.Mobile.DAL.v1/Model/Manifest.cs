@@ -11,7 +11,7 @@
 
         public string Docs { get; set; }
 
-        public string Attachments { get; set; }
+        public string Files { get; set; }
 
         public string ApiKey { get; set; }
 
@@ -42,7 +42,7 @@
 
         public string EmailPassword { get; set; }
 
-        //Attachments
+        //Files
         public string DirectoryPath { get; set; }
     }
 }

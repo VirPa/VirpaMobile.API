@@ -5,31 +5,40 @@ using System.Collections.Generic;
 
 namespace Virpa.Mobile.DAL.v1.Model {
 
-    public class AttachmentModel {
+    public class PostFilesModel {
 
-        public ICollection<IFormFile> Attachments { get; set; }
+        public string FileId { get; set; }
+
+        public ICollection<IFormFile> Files { get; set; }
+    }
+
+    public class FileModel {
+
+        public ICollection<IFormFile> Files { get; set; }
 
         public string Email { get; set; }
 
         public string FeedId { get; set; }
 
+        public string FileId { get; set; }
+
         [JsonIgnore]
         public int Type { get; set; }
     }
 
-    public class GetAttachments {
+    public class GetFiles {
 
         public string Email { get; set; }
 
         public int Type { get; set; }
     }
 
-    public class GetAttachmentsResponse {
+    public class GetFilesResponse {
 
-        public List<GetAttachmentsListResponse> Attachments { get; set; }
+        public List<GetFilesListResponse> Files { get; set; }
     }
 
-    public class GetAttachmentsListResponse {
+    public class GetFilesListResponse {
         [JsonIgnore]
         public string UserId { get; set; }
         [JsonIgnore]
@@ -43,15 +52,15 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public DateTime CreatedAt { get; set; }
     }
 
-    public class DeleteAttachments {
+    public class DeleteFiles {
 
         [JsonIgnore]
         public string Email { get; set; }
 
-        public List<AttachmentToBeDeleted> Attachments { get; set; }
+        public List<FileToBeDeleted> Files { get; set; }
     }
 
-    public class AttachmentToBeDeleted {
+    public class FileToBeDeleted {
 
         public string Id { get; set; }
     }

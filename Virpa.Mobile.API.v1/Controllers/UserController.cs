@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
         private readonly List<string> _infos = new List<string>();
 
         private readonly IMyUser _user;
+        private readonly IMyFiles _myFiles;
 
         private readonly ResponseBadRequest _badRequest;
         private readonly UserModelValidator _userModelValidator;
@@ -28,12 +30,14 @@ namespace Virpa.Mobile.API.v1.Controllers {
         private readonly ChangePasswordValidator _changePasswordValidator;
         private readonly ForgotPasswordValidator _forgotPasswordValidator;
         private readonly ResetPasswordValidator _resetPasswordValidator;
+        private readonly FileModelValidator _fileModelValidator;
 
         #endregion
 
         #region Constructor
 
         public UserController(IMyUser user,
+            IMyFiles myFiles,
             UserModelValidator userModelValidator,
             UpdateUserModelValidator updateUserModelValidator,
             SendEmailConfirmationValidator sendEmailConfirmationValidator,
@@ -41,9 +45,11 @@ namespace Virpa.Mobile.API.v1.Controllers {
             ChangePasswordValidator changePasswordValidator,
             ForgotPasswordValidator forgotPasswordValidator,
             ResetPasswordValidator resetPasswordValidator,
+            FileModelValidator fileModelValidator,
             ResponseBadRequest badRequest) {
 
             _user = user;
+            _myFiles = myFiles;
 
             _badRequest = badRequest;
             _userModelValidator = userModelValidator;
@@ -53,9 +59,24 @@ namespace Virpa.Mobile.API.v1.Controllers {
             _changePasswordValidator = changePasswordValidator;
             _forgotPasswordValidator = forgotPasswordValidator;
             _resetPasswordValidator = resetPasswordValidator;
+            _fileModelValidator = fileModelValidator;
         }
 
         #endregion
+
+        #region Get Users
+
+        [HttpGet("{userid}", Name = "GetUser")]
+        public async Task<IActionResult> GetUser(GetUserModel model) {
+
+            var gotUser = await _user.GetUser(model);
+
+            return Ok(gotUser);
+        }
+
+        #endregion
+
+        #region Post Users
 
         [HttpPost("Create", Name = "CreateUser")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel model) {
@@ -70,7 +91,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
                 return BadRequest(new CustomResponse<string> {
                     Message = _infos
                 });
-            }  
+            }
 
             #endregion
 
@@ -99,14 +120,6 @@ namespace Virpa.Mobile.API.v1.Controllers {
             var updatedUser = await _user.UpdateUser(model);
 
             return Ok(updatedUser);
-        }
-
-        [HttpGet("{userid}", Name = "GetUser")]
-        public async Task<IActionResult> GetUser(GetUserModel model) {
-
-            var gotUser = await _user.GetUser(model);
-
-            return Ok(gotUser);
         }
 
         [HttpPost("Send-Email-Confirmation", Name = "SendEmailConfirmation")]
@@ -218,5 +231,46 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             return Ok(resetPassword);
         }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("ProfilePicture/Change", Name = "ChangeProfilePicture")]
+        public async Task<IActionResult> ChangeProfilePicture(PostFilesModel postModel) {
+
+            var model = new FileModel {
+                Files = postModel.Files,
+                Email = UserEmail,
+                FileId = postModel.FileId,
+                Type = 3
+            };
+
+            #region Validate Model
+
+            if (model.Files == null) {
+
+                _infos.Add(_badRequest.ShowError(ResponseBadRequest.ErrFileEmpty).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
+
+            var userInputValidated = _fileModelValidator.Validate(model);
+
+            if (!userInputValidated.IsValid) {
+                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
+
+                return BadRequest(new CustomResponse<string> {
+                    Message = _infos
+                });
+            }
+
+            #endregion
+
+            var savedFiles = await _myFiles.PostFiles(model);
+
+            return Ok(savedFiles);
+        }
+
+        #endregion
     }
 }

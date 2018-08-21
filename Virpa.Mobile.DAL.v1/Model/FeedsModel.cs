@@ -44,7 +44,7 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
         public int Status { get; set; }
 
-        public List<GetAttachmentsListResponse> CoverPhotos { get; set; }
+        public List<GetFilesListResponse> CoverPhotos { get; set; }
     }
 
     public class PostMyFeedModel {
@@ -69,7 +69,7 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
         public PostMyFeedDetailResponseModel Feed { get; set; }
 
-        public GetAttachmentsListResponse CoverPhoto { get; set; }
+        public GetFilesListResponse CoverPhoto { get; set; }
     }
 
     public class PostMyFeedDetailResponseModel {
@@ -96,6 +96,6 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
     public class UpdateCoverPhotoResponse {
 
-        public List<GetAttachmentsListResponse> CoverPhoto { get; set; }
+        public List<GetFilesListResponse> CoverPhoto { get; set; }
     }
 }

@@ -7,15 +7,15 @@ using Virpa.Mobile.DAL.v1.Model;
 
 namespace Virpa.Mobile.BLL.v1.Validation {
 
-    public class AttachmentModelValidator : AbstractValidator<AttachmentModel> {
-        public AttachmentModelValidator() {
+    public class FileModelValidator : AbstractValidator<FileModel> {
+        public FileModelValidator() {
 
             RuleFor(a => a.Email).EmailAddress().WithMessage(ResponseBadRequest.ErrorInvalidEmailFormat.ToString());
 
-            RuleFor(a => a.Attachments).Must(IsFileValid)
+            RuleFor(a => a.Files).Must(IsFileValid)
                 .WithMessage(ResponseBadRequest.ErrImageFormat.ToString());
 
-            RuleFor(a => a.Attachments).Must(NotExceedTheFileSizeLimit)
+            RuleFor(a => a.Files).Must(NotExceedTheFileSizeLimit)
                 .WithMessage(ResponseBadRequest.ErrFileTooLarge.ToString());
         }
 

@@ -32,7 +32,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         #region Get
 
-        [HttpGet]
+        [HttpGet("List", Name = "List")]
         public IActionResult GetSkills() {
 
             var fetchedSkills = _mySkills.GetSkills();
@@ -40,7 +40,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
             return Ok(fetchedSkills);
         }
 
-        [HttpGet("MySkills", Name = "MySkills")]
+        [HttpGet]
         public async Task<IActionResult> GetMySkills() {
 
             var model = new GetMySkillsModel {
@@ -56,7 +56,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         #region Post
 
-        [HttpPost("MySkills", Name = "MySkills")]
+        [HttpPost]
         public async Task<IActionResult> PostMySkills([FromBody] PostMySkillsModel model) {
 
             model.Email = UserEmail;

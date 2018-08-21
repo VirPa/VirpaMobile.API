@@ -56,6 +56,13 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public string AppVersion { get; set; }
     }
 
+    public class GenerateTokenResponseModel {
+        
+        public TokenResource Authorization { get; set; }
+
+        public UserResponse User { get; set; }
+    }
+
     public class GenerateTokenResourceModel {
 
         //Info: refresh/session

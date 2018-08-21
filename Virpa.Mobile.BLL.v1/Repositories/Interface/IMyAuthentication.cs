@@ -8,6 +8,6 @@ namespace Virpa.Mobile.BLL.v1.Repositories.Interface {
 
         Task<CustomResponse<string>> SignOut(SignOutModel model);
 
-        Task<CustomResponse<TokenResource>> GenerateToken(GenerateTokenModel model);
+        Task<CustomResponse<GenerateTokenResponseModel>> GenerateToken(GenerateTokenModel model);
     }
 }

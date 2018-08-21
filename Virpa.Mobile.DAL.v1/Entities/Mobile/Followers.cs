@@ -8,6 +8,8 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public string Id { get; set; }
         public string FollowedId { get; set; }
         public string FollowerId { get; set; }
+        public bool? IsActive { get; set; }
         public DateTime? FollowedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

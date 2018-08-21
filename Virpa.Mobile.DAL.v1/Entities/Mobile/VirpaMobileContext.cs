@@ -23,10 +23,10 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<AspNetUserSessions> AspNetUserSessions { get; set; }
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
-        public virtual DbSet<Attachments> Attachments { get; set; }
         public virtual DbSet<FeedBidders> FeedBidders { get; set; }
         public virtual DbSet<FeedMessages> FeedMessages { get; set; }
         public virtual DbSet<Feeds> Feeds { get; set; }
+        public virtual DbSet<Files> Files { get; set; }
         public virtual DbSet<Followers> Followers { get; set; }
         public virtual DbSet<ReferenceData> ReferenceData { get; set; }
         public virtual DbSet<Skills> Skills { get; set; }
@@ -154,23 +154,6 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
             });
 
-            modelBuilder.Entity<Attachments>(entity =>
-            {
-                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.CodeName).HasMaxLength(450);
-
-                entity.Property(e => e.Extension).HasMaxLength(50);
-
-                entity.Property(e => e.FeedId).HasMaxLength(450);
-
-                entity.Property(e => e.FilePath).HasMaxLength(450);
-
-                entity.Property(e => e.Name).HasMaxLength(450);
-
-                entity.Property(e => e.UserId).HasMaxLength(450);
-            });
-
             modelBuilder.Entity<FeedBidders>(entity =>
             {
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
@@ -198,6 +181,23 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Budget).HasColumnType("decimal(18, 6)");
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<Files>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.CodeName).HasMaxLength(450);
+
+                entity.Property(e => e.Extension).HasMaxLength(50);
+
+                entity.Property(e => e.FeedId).HasMaxLength(450);
+
+                entity.Property(e => e.FilePath).HasMaxLength(450);
+
+                entity.Property(e => e.Name).HasMaxLength(450);
 
                 entity.Property(e => e.UserId).HasMaxLength(450);
             });

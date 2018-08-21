@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,36 +12,28 @@ using Virpa.Mobile.DAL.v1.Model;
 namespace Virpa.Mobile.API.v1.Controllers {
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("Feeds")]
+    [Route("files")]
     [ApiVersion("1.0")]
-    public class FeedsController : BaseController {
+    public class FilesController : BaseController {
 
         #region Initialization
 
         private readonly List<string> _infos = new List<string>();
 
-        private readonly IMyFeeds _myFeeds;
         private readonly IMyFiles _myFiles;
-
         private readonly ResponseBadRequest _badRequest;
-        private readonly FeedsModelValidator _feedsModelValidator;
         private readonly FileModelValidator _fileModelValidator;
 
         #endregion
 
         #region Constructor
 
-        public FeedsController(IMyFeeds myFeeds,
-            IMyFiles myFiles,
+        public FilesController(IMyFiles myFiles,
             ResponseBadRequest badRequest,
-            FeedsModelValidator feedsModelValidator,
             FileModelValidator fileModelValidator) {
 
-            _myFeeds = myFeeds;
             _myFiles = myFiles;
-
             _badRequest = badRequest;
-            _feedsModelValidator = feedsModelValidator;
             _fileModelValidator = fileModelValidator;
         }
 
@@ -49,15 +42,29 @@ namespace Virpa.Mobile.API.v1.Controllers {
         #region Get
 
         [HttpGet]
-        public async Task<IActionResult> GetMySkills() {
+        public async Task<IActionResult> Files() {
 
-            var model = new GetMyFeedsModel() {
-                Email = UserEmail
+            var model = new GetFiles {
+                Email = UserEmail,
+                Type = 0
             };
 
-            var fetchedMyFeeds = await _myFeeds.GetMyFeeds(model);
+            var fetchedFiles = await _myFiles.GetFiles(model);
 
-            return Ok(fetchedMyFeeds);
+            return Ok(fetchedFiles);
+        }
+
+        [HttpGet("{type}", Name = "GetFiles")]
+        public async Task<IActionResult> SpecificFiles(int type = 0) {
+
+            var model = new GetFiles {
+                Email = UserEmail,
+                Type = type
+            };
+
+            var fetchedFiles = await _myFiles.GetFiles(model);
+
+            return Ok(fetchedFiles);
         }
 
         #endregion
@@ -65,36 +72,11 @@ namespace Virpa.Mobile.API.v1.Controllers {
         #region Post
 
         [HttpPost]
-        public async Task<IActionResult> PostMyFeed(PostMyFeedModel model) {
-
-            #region Validate Model
-
-            var userInputValidated = _feedsModelValidator.Validate(model);
-
-            if (!userInputValidated.IsValid) {
-                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage), 30).Message);
-
-                return BadRequest(new CustomResponse<string> {
-                    Message = _infos
-                });
-            }
-
-            #endregion
-
-            model.Email = UserEmail;
-
-            var postedMyFeed = await _myFeeds.PostMyFeed(model);
-
-            return Ok(postedMyFeed);
-        }
-
-        [HttpPost("CoverPhoto/Change", Name = "ChangeFeedCoverPhoto")]
-        public async Task<IActionResult> UpdateMyFeedCoverPhoto(PostFilesModel postModel) {
+        public async Task<IActionResult> PostFiles(ICollection<IFormFile> files) {
 
             var model = new FileModel {
-                Files = postModel.Files,
+                Files = files,
                 Email = UserEmail,
-                FileId = postModel.FileId,
                 Type = 1
             };
 
@@ -120,9 +102,19 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #endregion
 
-            var changedCoverPhoto = await _myFiles.PostFiles(model);
+            var savedFiles = await _myFiles.PostFiles(model);
 
-            return Ok(changedCoverPhoto);
+            return Ok(savedFiles);
+        }
+
+        [HttpPost("Delete", Name = "Delete")]
+        public async Task<IActionResult> DeleteFiles([FromBody] DeleteFiles model) {
+
+            model.Email = UserEmail;
+
+            var fetchedFiles = await _myFiles.DeleteFiles(model);
+
+            return Ok(fetchedFiles);
         }
 
         #endregion

@@ -24,11 +24,13 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             services.AddTransient<IMyAuthentication, MyAuthentication>();
 
-            services.AddTransient<IMyAttachment, MyAttachment>();
+            services.AddTransient<IMyFiles, MyFiles>();
 
             services.AddTransient<IMySkills, MySkills>();
 
             services.AddTransient<IMyFeeds, MyFeeds>();
+
+            services.AddTransient<IMyFollowers, MyFollowers>();
 
             services.AddTransient<VirpaMobileContext>();
 
@@ -55,10 +57,12 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
             services.AddTransient<SignOutModelValidator>();
             services.AddTransient<GenerateTokenModelValidator>();
 
-            services.AddTransient<AttachmentModelValidator>();
+            services.AddTransient<FileModelValidator>();
 
             services.AddTransient<FeedsModelValidator>();
             services.AddTransient<FeedCoverPhotoModelValidator>();
+
+            services.AddTransient<FollowersModelValidator>();
 
             return services;
         }

@@ -16,13 +16,13 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
                 .ForMember(p => p.CreatedAt, f => f.ResolveUsing(p => DateTime.UtcNow))
                 .ForMember(p => p.UpdatedAt, f => f.ResolveUsing(p => DateTime.UtcNow));
 
-            CreateMap<ApplicationUser, UserResponse>();
+            CreateMap<ApplicationUser, UserDetails>();
 
-            CreateMap<AspNetUsers, UserResponse>();
+            CreateMap<AspNetUsers, UserDetails>();
 
             CreateMap<Skills, GetSkillsModel>();
 
-            CreateMap<Attachments, GetAttachmentsListResponse>();
+            CreateMap<Attachments, GetFilesListResponse>();
 
             CreateMap<PostMyFeedModel, Feeds>()
                 .ForMember(p => p.UpVoteCounts, f => f.ResolveUsing(p => 0))

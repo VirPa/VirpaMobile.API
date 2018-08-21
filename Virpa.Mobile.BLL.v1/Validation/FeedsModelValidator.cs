@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Virpa.Mobile.BLL.v1.Helpers;
 using Virpa.Mobile.DAL.v1.Model;
 

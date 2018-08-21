@@ -55,7 +55,7 @@ namespace Virpa.Mobile.API.v1 {
             services.Configure<Manifest>(_configurationRoot.GetSection("ConnectionStrings"));
             services.Configure<Manifest>(_configurationRoot.GetSection("JwtTokens"));
             services.Configure<Manifest>(_configurationRoot.GetSection("EmailNotification"));
-            services.Configure<Manifest>(_configurationRoot.GetSection("Attachments"));
+            services.Configure<Manifest>(_configurationRoot.GetSection("Files"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

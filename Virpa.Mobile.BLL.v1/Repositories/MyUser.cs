@@ -48,69 +48,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         #endregion
 
-        public async Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model) {
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user != null) {
-
-                _infos.Add("Email address already exist.");
-
-                var checkedPassword = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
-                if (!checkedPassword.Succeeded) _infos.Add("Failed to LogIn.");
-                   
-                return new CustomResponse<UserResponse> {
-                    Succeed = checkedPassword.Succeeded,
-                    Data = _mapper.Map<UserResponse>(user),
-                    Message = _infos
-                };
-            }
-
-            model.UserName = model.UserName ?? model.Email;
-
-            var newUser = _mapper.Map<ApplicationUser>(model);
-
-            var newUserCreated = await _userManager.CreateAsync(newUser, model.Password);
-
-            if (!newUserCreated.Succeeded) _infos.Add(string.Join("xx | xx", newUserCreated.Errors));
-
-            return new CustomResponse<UserResponse> {
-                Succeed = newUserCreated.Succeeded,
-                Data = _mapper.Map<UserResponse>(newUser),
-                Message = _infos
-            };
-        }
-
-        public async Task<CustomResponse<UserResponse>> UpdateUser(UpdateUserModel model) {
-
-            var user = _context.AspNetUsers.FirstOrDefault(u => u.Id == model.UserId);
-
-            #region Validate User
-
-            if (user == null) {
-                _infos.Add("User not exist.");
-
-                return new CustomResponse<UserResponse> {
-                    Message = _infos
-                };
-            };
-
-            #endregion
-            
-            user.Fullname = string.IsNullOrEmpty(model.Fullname) ? user.Fullname : model.Fullname;
-            user.MobileNumber = string.IsNullOrEmpty(model.MobileNumber) ? user.MobileNumber : model.MobileNumber;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            _context.Update(user);
-
-            await _context.SaveChangesAsync();
-
-            return new CustomResponse<UserResponse> {
-                Succeed = true,
-                Data = _mapper.Map<UserResponse>(user)
-            };
-        }
+        #region Get Users
 
         public async Task<CustomResponse<UserResponse>> GetUser(GetUserModel model) {
 
@@ -132,9 +70,78 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 return new CustomResponse<UserResponse> {
                     Succeed = true,
-                    Data = _mapper.Map<UserResponse>(user)
+                    Data = new UserResponse {
+                        User = _mapper.Map<UserDetails>(user)
+                    }
                 };
             });
+        }
+
+        #endregion
+
+        #region Post Users
+
+        public async Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model) {
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user != null) {
+
+                _infos.Add("Email address already exist.");
+
+                return new CustomResponse<UserResponse> {
+                    Data = _mapper.Map<UserResponse>(user),
+                    Message = _infos
+                };
+            }
+
+            model.UserName = model.UserName ?? model.Email;
+
+            var newUser = _mapper.Map<ApplicationUser>(model);
+
+            var newUserCreated = await _userManager.CreateAsync(newUser, model.Password);
+
+            if (!newUserCreated.Succeeded) _infos.Add(string.Join("xx | xx", newUserCreated.Errors));
+
+            return new CustomResponse<UserResponse> {
+                Succeed = newUserCreated.Succeeded,
+                Data = GetUser(new GetUserModel {
+                    UserId = newUser.Id
+                }).Result.Data
+            };
+        }
+
+        public async Task<CustomResponse<UserResponse>> UpdateUser(UpdateUserModel model) {
+
+            var user = _context.AspNetUsers.FirstOrDefault(u => u.Id == model.UserId);
+
+            #region Validate User
+
+            if (user == null) {
+                _infos.Add("User not exist.");
+
+                return new CustomResponse<UserResponse> {
+                    Message = _infos
+                };
+            };
+
+            #endregion
+
+            user.Fullname = string.IsNullOrEmpty(model.Fullname) ? user.Fullname : model.Fullname;
+            user.MobileNumber = string.IsNullOrEmpty(model.MobileNumber) ? user.MobileNumber : model.MobileNumber;
+            user.UpdatedAt = DateTime.UtcNow;
+            user.BackgroundSummary = model.BackgroundSummary;
+
+            _context.Update(user);
+
+            await _context.SaveChangesAsync();
+
+            return new CustomResponse<UserResponse> {
+                Succeed = true,
+                Data = GetUser(new GetUserModel {
+                    UserId = user.Id
+                }).Result.Data
+            };
         }
 
         public async Task<CustomResponse<ConfirmEmailModel>> SendEmailConfirmation(SendEmailConfirmation model) {
@@ -167,7 +174,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     Token = token
                 }
             };
-            
+
             #region Local Methods
 
             SendEmailWithTemplateModel SendEmailWrapper() {
@@ -268,7 +275,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     Token = token
                 }
             };
-            
+
             #region Local Methods
 
             SendEmailWithTemplateModel SendEmailWrapper() {
@@ -311,5 +318,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 Message = _infos
             };
         }
+
+        #endregion
     }
 }
