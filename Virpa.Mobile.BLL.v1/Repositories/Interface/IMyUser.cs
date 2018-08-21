@@ -5,11 +5,13 @@ namespace Virpa.Mobile.BLL.v1.Repositories.Interface {
 
     public interface IMyUser {
 
+        Task<CustomResponse<UserResponse>> GetUser(GetUserModel model);
+
+        Task<CustomResponse<GetUsersModel>> GetUserList(GetUserModel model);
+
         Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model);
 
         Task<CustomResponse<UserResponse>> UpdateUser(UpdateUserModel model);
-
-        Task<CustomResponse<UserResponse>> GetUser(GetUserModel model);
 
         Task<CustomResponse<ConfirmEmailModel>> SendEmailConfirmation(SendEmailConfirmation model);
 

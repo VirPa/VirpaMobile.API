@@ -38,6 +38,7 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             //DATA MANAGERS
             services.AddTransient<IFeedsDataManager, FeedsDataManager>();
+            services.AddTransient<IUsersDataManager, UsersDataManager>();
 
             //OTHER SERVICES
             services.AddTransient<IEmailSender, EmailSender>();

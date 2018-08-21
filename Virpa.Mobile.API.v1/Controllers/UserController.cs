@@ -10,7 +10,7 @@ using Virpa.Mobile.DAL.v1.Model;
 
 namespace Virpa.Mobile.API.v1.Controllers {
 
-    [AllowAnonymous]
+    //[AllowAnonymous]
     [Route("User")]
     [ApiVersion("1.0")]
     public class UserController : BaseController {
@@ -65,13 +65,26 @@ namespace Virpa.Mobile.API.v1.Controllers {
         #endregion
 
         #region Get Users
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("{userid}", Name = "GetUser")]
         public async Task<IActionResult> GetUser(GetUserModel model) {
 
             var gotUser = await _user.GetUser(model);
 
             return Ok(gotUser);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("List", Name = "GetUsers")]
+        public async Task<IActionResult> GetUsers() {
+
+            var model = new GetUserModel {
+                Email = UserEmail
+            };
+
+            var fetchedUsers = await _user.GetUserList(model);
+
+            return Ok(fetchedUsers);
         }
 
         #endregion

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Virpa.Mobile.BLL.v1.DataManagers.Interface;
 using Virpa.Mobile.BLL.v1.OtherServices.Interface;
 using Virpa.Mobile.BLL.v1.Repositories.Interface;
 using Virpa.Mobile.DAL.v1.Entities.Mobile;
@@ -21,34 +22,34 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         private readonly IOptions<Manifest> _options;
         private readonly IMapper _mapper;
         private readonly IEmailSender _emailSender;
+        private readonly IUsersDataManager _usersDataManager;
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VirpaMobileContext _context;
-        private readonly SignInManager<ApplicationUser> _signInManager;
 
         #endregion
 
         #region Constructor
 
-        public MyUser(IOptions<Manifest> options
-            , IEmailSender emailSender
-            , IMapper mapper
-            , UserManager<ApplicationUser> userManager
-            , SignInManager<ApplicationUser> signInManager
-            , VirpaMobileContext context) {
+        public MyUser(IOptions<Manifest> options,
+                      IEmailSender emailSender,
+                      IMapper mapper,
+                      IUsersDataManager usersDataManager,
+                      UserManager<ApplicationUser> userManager,
+                      VirpaMobileContext context) {
 
             _options = options;
             _emailSender = emailSender;
             _mapper = mapper;
+            _usersDataManager = usersDataManager;
 
             _userManager = userManager;
-            _signInManager = signInManager;
             _context = context;
         }
 
         #endregion
 
-        #region Get Users
+        #region Get
 
         public async Task<CustomResponse<UserResponse>> GetUser(GetUserModel model) {
 
@@ -75,6 +76,18 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     }
                 };
             });
+        }
+
+        public async Task<CustomResponse<GetUsersModel>> GetUserList(GetUserModel model) {
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            var users = _usersDataManager.GetUsers(new GetUserModel() { UserId = user.Id });
+
+            return new CustomResponse<GetUsersModel> {
+                Succeed = true,
+                Data = users
+            };
         }
 
         #endregion
