@@ -24,7 +24,6 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         private readonly ResponseBadRequest _badRequest;
         private readonly FeedsModelValidator _feedsModelValidator;
-        private readonly FileModelValidator _fileModelValidator;
 
         #endregion
 
@@ -33,15 +32,13 @@ namespace Virpa.Mobile.API.v1.Controllers {
         public FeedsController(IMyFeeds myFeeds,
             IMyFiles myFiles,
             ResponseBadRequest badRequest,
-            FeedsModelValidator feedsModelValidator,
-            FileModelValidator fileModelValidator) {
+            FeedsModelValidator feedsModelValidator) {
 
             _myFeeds = myFeeds;
             _myFiles = myFiles;
 
             _badRequest = badRequest;
             _feedsModelValidator = feedsModelValidator;
-            _fileModelValidator = fileModelValidator;
         }
 
         #endregion
@@ -49,13 +46,38 @@ namespace Virpa.Mobile.API.v1.Controllers {
         #region Get
 
         [HttpGet]
-        public async Task<IActionResult> GetMySkills() {
+        public async Task<IActionResult> GetFeeds() {
 
-            var model = new GetMyFeedsModel() {
+            var model = new GetMyFeedsModel {
                 Email = UserEmail
             };
 
-            var fetchedMyFeeds = await _myFeeds.GetMyFeeds(model);
+            var fetchedMyFeeds = await _myFeeds.GetFeeds(model);
+
+            return Ok(fetchedMyFeeds);
+        }
+
+        [HttpGet("Wall", Name = "Wall")]
+        public async Task<IActionResult> GetMyWallFeeds() {
+
+            var model = new GetMyFeedsModel {
+                Email = UserEmail
+            };
+
+            var fetchedMyFeeds = await _myFeeds.GetMyWallFeeds(model);
+
+            return Ok(fetchedMyFeeds);
+        }
+
+        [HttpGet("Wall/{userid}", Name = "WallByUser")]
+        public async Task<IActionResult> GetWallFeeds(string userid) {
+
+            var model = new GetMyFeedsModel {
+                UserId = userid,
+                ByUser = true
+            };
+
+            var fetchedMyFeeds = await _myFeeds.GetMyWallFeeds(model);
 
             return Ok(fetchedMyFeeds);
         }
@@ -65,7 +87,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
         #region Post
 
         [HttpPost]
-        public async Task<IActionResult> PostMyFeed(PostMyFeedModel model) {
+        public async Task<IActionResult> PostMyFeed([FromBody] PostMyFeedModel model) {
 
             #region Validate Model
 
@@ -89,10 +111,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
         }
 
         [HttpPost("CoverPhoto/Change", Name = "ChangeFeedCoverPhoto")]
-        public async Task<IActionResult> UpdateMyFeedCoverPhoto(PostFilesModel postModel) {
+        public async Task<IActionResult> UpdateMyFeedCoverPhoto([FromBody] PostFilesModel postModel) {
 
-            var model = new FileModel {
-                Files = postModel.Files,
+            var model = new FileBase64Model {
+                Files = new List<FileDetails> {
+                    new FileDetails {
+                        Name = postModel.File.Name,
+                        Base64 = postModel.File.Base64
+                    }
+                },
                 Email = UserEmail,
                 FileId = postModel.FileId,
                 Type = 1
@@ -108,19 +135,9 @@ namespace Virpa.Mobile.API.v1.Controllers {
                 });
             }
 
-            var userInputValidated = _fileModelValidator.Validate(model);
-
-            if (!userInputValidated.IsValid) {
-                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
-
-                return BadRequest(new CustomResponse<string> {
-                    Message = _infos
-                });
-            }
-
             #endregion
 
-            var changedCoverPhoto = await _myFiles.PostFiles(model);
+            var changedCoverPhoto = await _myFiles.SaveFiles(model);
 
             return Ok(changedCoverPhoto);
         }

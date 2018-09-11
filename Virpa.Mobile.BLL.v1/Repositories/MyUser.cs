@@ -72,7 +72,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 return new CustomResponse<UserResponse> {
                     Succeed = true,
                     Data = new UserResponse {
-                        User = _mapper.Map<UserDetails>(user)
+                        Detail = _mapper.Map<UserDetails>(user),
+                        ProfilePicture = GetProfilePicture(user.Id)
                     }
                 };
             });
@@ -90,11 +91,27 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             };
         }
 
+        public GetFilesListResponse GetProfilePicture(string userId) {
+            var profilePicture = _context.Files.FirstOrDefault(p => p.UserId == userId && p.Type == 3);
+
+            if (profilePicture == null) return null;
+
+            return new GetFilesListResponse {
+                Id = profilePicture.Id,
+                Name = profilePicture.Name,
+                CodeName = profilePicture.CodeName,
+                Extension = profilePicture.Extension,
+                FilePath = profilePicture.FilePath,
+                Type = profilePicture.Type ?? 3,
+                CreatedAt = profilePicture.CreatedAt
+            };
+        }
+
         #endregion
 
         #region Post Users
 
-        public async Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model) {
+        public async Task<CustomResponse<CreateUserResponseModel>> CreateUser(CreateUserModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -102,8 +119,12 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 _infos.Add("Email address already exist.");
 
-                return new CustomResponse<UserResponse> {
-                    Data = _mapper.Map<UserResponse>(user),
+                return new CustomResponse<CreateUserResponseModel> {
+                    Data = new CreateUserResponseModel {
+                        User = GetUser(new GetUserModel {
+                            UserId = user.Id
+                        }).Result.Data
+                    },
                     Message = _infos
                 };
             }
@@ -116,11 +137,13 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             if (!newUserCreated.Succeeded) _infos.Add(string.Join("xx | xx", newUserCreated.Errors));
 
-            return new CustomResponse<UserResponse> {
+            return new CustomResponse<CreateUserResponseModel> {
                 Succeed = newUserCreated.Succeeded,
-                Data = GetUser(new GetUserModel {
-                    UserId = newUser.Id
-                }).Result.Data
+                Data = new CreateUserResponseModel {
+                    User = GetUser(new GetUserModel {
+                        UserId = newUser.Id
+                    }).Result.Data
+                }
             };
         }
 
@@ -328,6 +351,37 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             return new CustomResponse<string> {
                 Succeed = result.Succeeded,
                 Data = null,
+                Message = _infos
+            };
+        }
+
+        public async Task<CustomResponse<UserResponse>> UpdateBackgroundSummary(UpdateBackgroundSummaryModel model) {
+
+            var user = _context.AspNetUsers.FirstOrDefault(u => u.Email == model.Email);
+
+            #region Validate User
+
+            if (user == null) {
+                _infos.Add("User not exist.");
+
+                return new CustomResponse<UserResponse> {
+                    Message = _infos
+                };
+            };
+
+            #endregion
+
+            user.BackgroundSummary = model.BackgroundSummary;
+
+            _context.Update(user);
+
+            await _context.SaveChangesAsync();
+
+            return new CustomResponse<UserResponse> {
+                Succeed = true,
+                Data = GetUser(new GetUserModel {
+                    UserId = user.Id
+                }).Result.Data,
                 Message = _infos
             };
         }

@@ -10,6 +10,8 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public string Email { get; set; }
 
         public string UserId { get; set; }
+
+        public bool ByUser { get; set; }
     }
 
     public class GetMyFeedsDataManagerModel {
@@ -62,7 +64,7 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
         public int ExpiredOn { get; set; } //Days <= 30
 
-        public ICollection<IFormFile> CoverPhoto { get; set; }
+        public FileDetails CoverPhoto { get; set; }
     }
 
     public class PostMyFeedResponseModel {

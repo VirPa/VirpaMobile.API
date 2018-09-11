@@ -57,8 +57,8 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
             services.AddTransient<SignInModelValidator>();
             services.AddTransient<SignOutModelValidator>();
             services.AddTransient<GenerateTokenModelValidator>();
-
-            services.AddTransient<FileModelValidator>();
+            
+            services.AddTransient<FileBase64ModelValidator>();
 
             services.AddTransient<FeedsModelValidator>();
             services.AddTransient<FeedCoverPhotoModelValidator>();

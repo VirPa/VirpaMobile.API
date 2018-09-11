@@ -14,6 +14,8 @@ namespace Virpa.Mobile.API.v1.Controllers {
     [ApiVersion("1.0")]
     public class AuthenticationController : BaseController {
 
+        #region Initialization
+
         private readonly List<string> _infos = new List<string>();
 
         private readonly IMyAuthentication _myAuthentication;
@@ -22,6 +24,10 @@ namespace Virpa.Mobile.API.v1.Controllers {
         private readonly SignInModelValidator _signInModelValidator;
         private readonly SignOutModelValidator _signOutModelValidator;
         private readonly GenerateTokenModelValidator _generateTokenModelValidator;
+
+        #endregion
+
+        #region Constructor
 
         public AuthenticationController(IMyAuthentication myAuthentication,
             ResponseBadRequest badRequest,
@@ -35,6 +41,8 @@ namespace Virpa.Mobile.API.v1.Controllers {
             _signOutModelValidator = signOutModelValidator;
             _generateTokenModelValidator = generateTokenModelValidator;
         }
+
+        #endregion
 
         [HttpPost("Sign-In", Name = "SignIn")]
         public async Task<IActionResult> SignIn([FromBody] SignInModel model) {

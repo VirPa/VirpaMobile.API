@@ -12,6 +12,7 @@ namespace Virpa.Mobile.BLL.v1.DataManagers {
         private readonly IOptions<Manifest> _options;
 
         private const string SpGetMyFeeds = "sp_GetMyFeeds";
+        private const string SpGetMyWallFeeds = "sp_GetMyWallFeeds";
 
         public FeedsDataManager(IOptions<Manifest> options) {
             _options = options;
@@ -25,6 +26,21 @@ namespace Virpa.Mobile.BLL.v1.DataManagers {
                     model.UserId
                 },
                 commandType: CommandType.StoredProcedure).ToList();
+
+                var mappedMyFeeds = JsonConvert.DeserializeObject<GetMyFeedsResponseModel>(myFeedsJson.FirstOrDefault()?.MyFeeds);
+
+                return mappedMyFeeds;
+            }
+        }
+
+        public GetMyFeedsResponseModel GetMyWallFeeds(GetMyFeedsModel model) {
+
+            using (var conn = GetSysDbConnection(_options.Value.DefaultConnection)) {
+
+                var myFeedsJson = conn.Query<GetMyFeedsDataManagerModel>(SpGetMyWallFeeds, new {
+                        model.UserId
+                    },
+                    commandType: CommandType.StoredProcedure).ToList();
 
                 var mappedMyFeeds = JsonConvert.DeserializeObject<GetMyFeedsResponseModel>(myFeedsJson.FirstOrDefault()?.MyFeeds);
 

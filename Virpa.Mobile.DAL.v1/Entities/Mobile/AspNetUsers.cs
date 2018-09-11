@@ -9,7 +9,6 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         {
             AspNetUserClaims = new HashSet<AspNetUserClaims>();
             AspNetUserLogins = new HashSet<AspNetUserLogins>();
-            AspNetUserRoles = new HashSet<AspNetUserRoles>();
         }
 
         public string Id { get; set; }
@@ -36,6 +35,5 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
 
         public ICollection<AspNetUserClaims> AspNetUserClaims { get; set; }
         public ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }
-        public ICollection<AspNetUserRoles> AspNetUserRoles { get; set; }
     }
 }

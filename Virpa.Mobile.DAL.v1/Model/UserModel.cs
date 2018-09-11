@@ -20,6 +20,11 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public string Password { get; set; }
     }
 
+    public class CreateUserResponseModel {
+
+        public UserResponse User { get; set; }
+    }
+
     public class UpdateUserModel {
 
         public string UserId { get; set; }
@@ -40,7 +45,9 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
     public class UserResponse {
 
-        public UserDetails User { get; set; }
+        public UserDetails Detail { get; set; }
+
+        public GetFilesListResponse ProfilePicture { get; set; }
     }
 
     public class UserDetails {
@@ -121,6 +128,14 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public string Extension { get; set; }
         public string FilePath { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    public class UpdateBackgroundSummaryModel {
+
+        public string BackgroundSummary { get; set; }
+
+        [JsonIgnore]
+        public string Email { get; set; }
     }
 
     #endregion

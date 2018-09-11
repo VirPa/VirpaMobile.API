@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -22,7 +21,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         private readonly IMyFiles _myFiles;
         private readonly ResponseBadRequest _badRequest;
-        private readonly FileModelValidator _fileModelValidator;
+        private readonly FileBase64ModelValidator _fileModelValidator;
 
         #endregion
 
@@ -30,7 +29,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         public FilesController(IMyFiles myFiles,
             ResponseBadRequest badRequest,
-            FileModelValidator fileModelValidator) {
+            FileBase64ModelValidator fileModelValidator) {
 
             _myFiles = myFiles;
             _badRequest = badRequest;
@@ -54,7 +53,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
             return Ok(fetchedFiles);
         }
 
-        [HttpGet("{type}", Name = "GetFiles")]
+        [HttpGet("{type}", Name = "GetFileById")]
         public async Task<IActionResult> SpecificFiles(int type = 0) {
 
             var model = new GetFiles {
@@ -72,13 +71,10 @@ namespace Virpa.Mobile.API.v1.Controllers {
         #region Post
 
         [HttpPost]
-        public async Task<IActionResult> PostFiles(ICollection<IFormFile> files) {
+        public async Task<IActionResult> PostFiles([FromBody] FileBase64Model model) {
 
-            var model = new FileModel {
-                Files = files,
-                Email = UserEmail,
-                Type = 1
-            };
+            model.Email = UserEmail;
+            model.Type = 1;
 
             #region Validate Model
 
@@ -102,7 +98,7 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
             #endregion
 
-            var savedFiles = await _myFiles.PostFiles(model);
+            var savedFiles = await _myFiles.SaveFiles(model);
 
             return Ok(savedFiles);
         }

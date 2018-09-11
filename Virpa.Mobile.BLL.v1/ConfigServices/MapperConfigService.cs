@@ -22,7 +22,7 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             CreateMap<Skills, GetSkillsModel>();
 
-            CreateMap<Attachments, GetFilesListResponse>();
+            CreateMap<Files, GetFilesListResponse>();
 
             CreateMap<PostMyFeedModel, Feeds>()
                 .ForMember(p => p.UpVoteCounts, f => f.ResolveUsing(p => 0))

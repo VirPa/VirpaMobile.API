@@ -110,7 +110,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             #endregion
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(sessionToken);
-
+            
             return new CustomResponse<SignInReponseModel> {
                 Succeed = true,
                 Data = new SignInReponseModel {
@@ -125,7 +125,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                         }
                     },
                     User = new UserResponse {
-                        User = _mapper.Map<UserDetails>(user)
+                        Detail = _mapper.Map<UserDetails>(user),
+                        ProfilePicture = _user.GetProfilePicture(user.Id)
                     }
                 }
             };
@@ -243,8 +244,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                                 ExpiredAt = token.ValidTo
                             },
                             User = _user.GetUser(new GetUserModel {
-                                UserId = user.Id
-                            }).Result.Data
+                                    UserId = user.Id
+                                }).Result.Data
                         }
                     };
                 }
@@ -261,9 +262,11 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     Succeed = refreshToken.Result.Succeed,
                     Data = new GenerateTokenResponseModel {
                         Authorization = refreshToken.Result.Data,
-                        User = _user.GetUser(new GetUserModel {
-                            UserId = user.Id
-                        }).Result.Data
+                        User = new UserResponse {
+                            Detail = _user.GetUser(new GetUserModel {
+                                UserId = user.Id
+                            }).Result.Data.Detail
+                        }
                     },
                     Message = refreshToken.Result.Message
                 };

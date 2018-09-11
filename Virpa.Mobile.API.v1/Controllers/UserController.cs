@@ -9,8 +9,7 @@ using Virpa.Mobile.BLL.v1.Validation;
 using Virpa.Mobile.DAL.v1.Model;
 
 namespace Virpa.Mobile.API.v1.Controllers {
-
-    //[AllowAnonymous]
+    
     [Route("User")]
     [ApiVersion("1.0")]
     public class UserController : BaseController {
@@ -30,7 +29,6 @@ namespace Virpa.Mobile.API.v1.Controllers {
         private readonly ChangePasswordValidator _changePasswordValidator;
         private readonly ForgotPasswordValidator _forgotPasswordValidator;
         private readonly ResetPasswordValidator _resetPasswordValidator;
-        private readonly FileModelValidator _fileModelValidator;
 
         #endregion
 
@@ -45,7 +43,6 @@ namespace Virpa.Mobile.API.v1.Controllers {
             ChangePasswordValidator changePasswordValidator,
             ForgotPasswordValidator forgotPasswordValidator,
             ResetPasswordValidator resetPasswordValidator,
-            FileModelValidator fileModelValidator,
             ResponseBadRequest badRequest) {
 
             _user = user;
@@ -59,7 +56,6 @@ namespace Virpa.Mobile.API.v1.Controllers {
             _changePasswordValidator = changePasswordValidator;
             _forgotPasswordValidator = forgotPasswordValidator;
             _resetPasswordValidator = resetPasswordValidator;
-            _fileModelValidator = fileModelValidator;
         }
 
         #endregion
@@ -247,10 +243,15 @@ namespace Virpa.Mobile.API.v1.Controllers {
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("ProfilePicture/Change", Name = "ChangeProfilePicture")]
-        public async Task<IActionResult> ChangeProfilePicture(PostFilesModel postModel) {
+        public async Task<IActionResult> ChangeProfilePicture([FromBody] PostFilesModel postModel) {
 
-            var model = new FileModel {
-                Files = postModel.Files,
+            var model = new FileBase64Model {
+                Files = new List<FileDetails> {
+                    new FileDetails {
+                        Name = postModel.File.Name,
+                        Base64 = postModel.File.Base64
+                    }
+                },
                 Email = UserEmail,
                 FileId = postModel.FileId,
                 Type = 3
@@ -267,21 +268,22 @@ namespace Virpa.Mobile.API.v1.Controllers {
                 });
             }
 
-            var userInputValidated = _fileModelValidator.Validate(model);
-
-            if (!userInputValidated.IsValid) {
-                _infos.Add(_badRequest.ShowError(int.Parse(userInputValidated.Errors[0].ErrorMessage)).Message);
-
-                return BadRequest(new CustomResponse<string> {
-                    Message = _infos
-                });
-            }
-
             #endregion
 
-            var savedFiles = await _myFiles.PostFiles(model);
+            var savedFiles = await _myFiles.SaveFiles(model);
 
             return Ok(savedFiles);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("Update-BackgroundSummary", Name = "UpdateBackgroundSummary")]
+        public async Task<IActionResult> UpdateBackgroundSummary([FromBody] UpdateBackgroundSummaryModel model) {
+
+            model.Email = UserEmail;
+
+            var updatedUser = await _user.UpdateBackgroundSummary(model);
+
+            return Ok(updatedUser);
         }
 
         #endregion

@@ -63,10 +63,12 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 _context.Files.Where(a => a.IsActive == true && a.UserId == user.Id).ToList() :
                 _context.Files.Where(a => a.IsActive == true && a.UserId == user.Id && a.Type == model.Type).ToList();
 
+            var orderedFiles = files.OrderByDescending(f => f.CreatedAt);
+
             return new CustomResponse<GetFilesResponse> {
                 Succeed = true,
                 Data = new GetFilesResponse {
-                    Files = _mapper.Map<List<GetFilesListResponse>>(files)
+                    Files = _mapper.Map<List<GetFilesListResponse>>(orderedFiles)
                 }
             };
         }
@@ -75,7 +77,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         #region Post
 
-        public async Task<CustomResponse<GetFilesResponse>> PostFiles(FileModel model) {
+        public async Task<CustomResponse<GetFilesResponse>> SaveFiles(FileBase64Model model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -91,104 +93,109 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             }
             #endregion
 
-            var fileData = _context.Files.FirstOrDefault(f => f.Id == model.FileId); 
+            var fileData = _context.Files.FirstOrDefault(f => f.Id == model.FileId);
 
             #region Add Files
 
             if (fileData == null) {
 
-                var files = new List<GetFilesListResponse>();
-
-                foreach (var file in model.Files) {
-
-                    if (file.Length > 0) {
-
-                        var attachmentCode = Guid.NewGuid();
-
-                        var extension = Path.GetExtension(file.FileName);
-
-                        var newFileName = attachmentCode + extension;
-
-                        using (
-                            var fileStream = new FileStream(Path.Combine(_options.Value.DirectoryPath,
-                                    newFileName),
-                                FileMode.Create)) {
-
-                            await file.CopyToAsync(fileStream);
-
-                            var mappedFiles = new Files {
-                                UserId = user.Id,
-                                FeedId = model.FeedId,
-                                Name = file.FileName,
-                                CodeName = attachmentCode.ToString(),
-                                Extension = extension,
-                                FilePath = _options.Value.Protocol + _options.Value.Uri + _options.Value.Files + newFileName,
-                                Type = model.Type,
-                                CreatedAt = DateTime.UtcNow,
-                                IsActive = true
-                            };
-
-                            var savedAttachment = _context.Files.AddAsync(mappedFiles);
-
-                            files.Add(_mapper.Map<GetFilesListResponse>(savedAttachment.Result.Entity));
-                        }
-                    }
-                }
-
-                await _context.SaveChangesAsync();
+                var addedFiles = await AddFiles();
 
                 return new CustomResponse<GetFilesResponse> {
                     Succeed = true,
                     Data = new GetFilesResponse {
-                        Files = files
+                        Files = addedFiles
                     }
                 };
             }
             #endregion
 
-            var updatedFiles = new List<GetFilesListResponse>();
-
-            var updateFile = model.Files.FirstOrDefault();
-
-            if (updateFile?.Length > 0) {
-
-                var attachmentCode = fileData.CodeName;
-
-                var extension = Path.GetExtension(updateFile.FileName);
-
-                var newFileName = attachmentCode + extension;
-
-                File.Delete(Path.Combine(_options.Value.DirectoryPath,
-                    attachmentCode + fileData.Extension));
-
-                using (
-
-                    var fileStream = new FileStream(Path.Combine(_options.Value.DirectoryPath,
-                            newFileName),
-                        FileMode.Create)) {
-
-                    await updateFile.CopyToAsync(fileStream);
-
-                    fileData.Name = updateFile.FileName;
-                    fileData.FilePath = _options.Value.Protocol + _options.Value.Uri +
-                                          _options.Value.Files + newFileName;
-                    fileData.Extension = extension;
-                    fileData.UpdatedAt = DateTime.UtcNow;
-
-                    _context.Update(fileData);
-
-                    updatedFiles.Add(_mapper.Map<GetFilesListResponse>(fileData));
-                }
-            }
-
-            _context.SaveChanges();
+            var modifiedFiles = ModifyFiles();
 
             return new CustomResponse<GetFilesResponse> {
                 Succeed = true,
                 Data = new GetFilesResponse {
-                    Files = updatedFiles
+                    Files = modifiedFiles
                 }
             };
+
+            #region Local Methods
+
+            async Task<List<GetFilesListResponse>> AddFiles() {
+
+                var files = new List<GetFilesListResponse>();
+
+                foreach (var file in model.Files) {
+
+                    var fileCode = Guid.NewGuid();
+
+                    var extension = Path.GetExtension(file.Name);
+
+                    var newFileName = fileCode + extension;
+                    
+                    var bytes = Convert.FromBase64String(file.Base64);
+
+                    File.WriteAllBytes(Path.Combine(_options.Value.DirectoryPath,
+                        newFileName), bytes);
+
+                    var mappedFiles = new Files {
+                        UserId = user.Id,
+                        FeedId = model.FeedId,
+                        Name = file.Name,
+                        CodeName = fileCode + extension,
+                        Extension = extension,
+                        FilePath =
+                            _options.Value.Protocol + _options.Value.Uri + _options.Value.Files + newFileName,
+                        Type = model.Type,
+                        CreatedAt = DateTime.UtcNow,
+                        IsActive = true
+                    };
+
+                    var savedFile = _context.Files.AddAsync(mappedFiles);
+
+                    await _context.SaveChangesAsync();
+
+                    files.Add(_mapper.Map<GetFilesListResponse>(savedFile.Result.Entity));
+                }
+
+                return files;
+            }
+
+            List<GetFilesListResponse> ModifyFiles() {
+                var updatedFiles = new List<GetFilesListResponse>();
+
+                var updateFile = model.Files.FirstOrDefault();
+
+                var fileCode = fileData.CodeName;
+
+                var extension = Path.GetExtension(updateFile?.Name);
+
+                var updateFileName = fileCode + extension;
+
+                File.Delete(Path.Combine(_options.Value.DirectoryPath,
+                    fileCode + fileData.Extension));
+                
+                var bytes = Convert.FromBase64String(updateFile?.Base64);
+
+                File.WriteAllBytes(Path.Combine(_options.Value.DirectoryPath,
+                    updateFileName), bytes);
+
+                fileData.Name = updateFile?.Name;
+                fileData.FilePath = _options.Value.Protocol + _options.Value.Uri +
+                                    _options.Value.Files + updateFileName;
+                fileData.Extension = extension;
+                fileData.UpdatedAt = DateTime.UtcNow;
+
+                _context.Update(fileData);
+
+                _context.SaveChanges();
+
+                updatedFiles.Add(_mapper.Map<GetFilesListResponse>(fileData));
+
+                return updatedFiles;
+            }
+
+            #endregion
         }
 
         //NOTE: SOFT DELETE ONLY.
@@ -209,15 +216,15 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             #endregion
 
             foreach (var file in model.Files) {
-                var attachedFile = _context.Files.FirstOrDefault(a => a.IsActive == true && a.UserId == user.Id && a.Id == file.Id);
+                var dataFile = _context.Files.FirstOrDefault(a => a.IsActive == true && a.UserId == user.Id && a.Id == file.FileId);
 
-                if (attachedFile == null) {
+                if (dataFile == null) {
                     continue;
                 }
 
-                attachedFile.IsActive = false;
+                dataFile.IsActive = false;
 
-                _context.Update(attachedFile);
+                _context.Update(dataFile);
             }
 
             _context.SaveChanges();

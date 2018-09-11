@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +20,6 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         private readonly IMyFiles _myFiles;
         private readonly IMapper _mapper;
         private readonly IFeedsDataManager _feedsDataManager;
-        private readonly IOptions<Manifest> _options;
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VirpaMobileContext _context;
@@ -33,14 +31,12 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         public MyFeeds(IMyFiles myFiles,
             IMapper mapper,
             IFeedsDataManager feedsDataManager,
-            IOptions<Manifest> options,
             UserManager<ApplicationUser> userManager,
             VirpaMobileContext context) {
 
             _myFiles = myFiles;
             _mapper = mapper;
             _feedsDataManager = feedsDataManager;
-            _options = options;
 
             _userManager = userManager;
             _context = context;
@@ -50,11 +46,72 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         #region Get
 
-        public async Task<CustomResponse<GetMyFeedsResponseModel>> GetMyFeeds(GetMyFeedsModel model) {
+        public async Task<CustomResponse<GetMyFeedsResponseModel>> GetFeeds(GetMyFeedsModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             var feeds = _feedsDataManager.GetMyFeeds(new GetMyFeedsModel {UserId = user.Id });
+
+            #region Validate Feeds
+
+            if (feeds.Feeds == null) {
+
+                _infos.Add("No feed/s relevant for this user.");
+
+                return new CustomResponse<GetMyFeedsResponseModel> {
+                    Message = _infos
+                };
+            }
+            #endregion
+
+            feeds.Feeds = feeds.Feeds.OrderByDescending(f => f.CreatedAt).ToList();
+
+            return new CustomResponse<GetMyFeedsResponseModel> {
+                Succeed = true,
+                Data = feeds
+            };
+        }
+
+        public async Task<CustomResponse<GetMyFeedsResponseModel>> GetMyWallFeeds(GetMyFeedsModel model) {
+
+            var userId = model.UserId;
+
+            if (!model.ByUser) {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                userId = user.Id;
+
+                goto Checked;
+            }
+
+            #region Validate User
+
+            var userCheck = await _userManager.FindByIdAsync(userId);
+
+            if (userCheck == null) {
+
+                _infos.Add("User not exist.");
+
+                return new CustomResponse<GetMyFeedsResponseModel> {
+                    Message = _infos
+                };
+            }
+            #endregion
+
+            Checked:
+            var feeds = _feedsDataManager.GetMyWallFeeds(new GetMyFeedsModel { UserId = userId });
+
+            #region Validate Feeds
+
+            if (feeds.Feeds == null) {
+
+                _infos.Add("No feed/s saved for this user.");
+
+                return new CustomResponse<GetMyFeedsResponseModel> {
+                    Message = _infos
+                };
+            }
+            #endregion
 
             feeds.Feeds = feeds.Feeds.OrderByDescending(f => f.CreatedAt).ToList();
 
@@ -131,14 +188,19 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 if (model.CoverPhoto == null) return null;
 
-                var file = new FileModel {
+                var file = new FileBase64Model {
                     Email = model.Email,
-                    Files = model.CoverPhoto,
+                    Files = new List<FileDetails> {
+                        new FileDetails {
+                            Name = model.CoverPhoto.Name,
+                            Base64 = model.CoverPhoto.Base64
+                        }
+                    },
                     FeedId = feedId,
                     Type = 2
                 };
 
-                var attachedCoverPhoto = _myFiles.PostFiles(file);
+                var attachedCoverPhoto = _myFiles.SaveFiles(file);
 
                 return attachedCoverPhoto.Result.Data;
             }
@@ -147,5 +209,5 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         }
 
         #endregion
-        }
+    }
 }

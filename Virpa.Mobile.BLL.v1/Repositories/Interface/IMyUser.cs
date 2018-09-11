@@ -9,7 +9,9 @@ namespace Virpa.Mobile.BLL.v1.Repositories.Interface {
 
         Task<CustomResponse<GetUsersModel>> GetUserList(GetUserModel model);
 
-        Task<CustomResponse<UserResponse>> CreateUser(CreateUserModel model);
+        GetFilesListResponse GetProfilePicture(string userId);
+
+        Task<CustomResponse<CreateUserResponseModel>> CreateUser(CreateUserModel model);
 
         Task<CustomResponse<UserResponse>> UpdateUser(UpdateUserModel model);
 
@@ -22,5 +24,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories.Interface {
         Task<CustomResponse<ForgotPasswordResponseModel>> ForgotPassword(ForgotPasswordModel model);
 
         Task<CustomResponse<string>> ResetPassword(ResetPasswordModel model);
+
+        Task<CustomResponse<UserResponse>> UpdateBackgroundSummary(UpdateBackgroundSummaryModel model);
     }
 }
