@@ -17,6 +17,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         private readonly List<string> _infos = new List<string>();
         
         private readonly IMapper _mapper;
+        private readonly IMyUser _user;
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VirpaMobileContext _context;
@@ -26,10 +27,12 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         #region Constructor
 
         public MyFollowers(IMapper mapper,
+            IMyUser user,
             UserManager<ApplicationUser> userManager,
             VirpaMobileContext context) {
             
             _mapper = mapper;
+            _user = user;
 
             _userManager = userManager;
             _context = context;
@@ -43,12 +46,56 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            var followers = _context.Followers.Where(s => s.IsActive == true && s.FollowedId == user.Id).ToList();
+            var followers = _context.Followers.Where(s => (s.IsActive == true || s.IsActive == null) && s.FollowedId == user.Id).ToList();
+
+            var followerList = new List<GetMyFollowersListModel>();
+
+            foreach (var follower in followers) {
+
+                followerList.Add(new GetMyFollowersListModel {
+                    User = new UserResponse {
+                        Detail = _user.GetUser(new GetUserModel {
+                            UserId = follower.FollowerId
+                        }).Result.Data.Detail
+                    },
+                    FollowedAt = follower.FollowedAt,
+                    UpdatedAt = follower.UpdatedAt
+                });
+            }
 
             return new CustomResponse<GetMyFollowersResponseModel> {
                 Succeed = true,
                 Data = new GetMyFollowersResponseModel {
-                    Followers = _mapper.Map<List<GetMyFollowersListModel>>(followers)
+                    Followers = followerList
+                }
+            };
+        }
+
+        public async Task<CustomResponse<GetMyFollowedResponseModel>> GetFollowed(GetMyFollowersModel model) {
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            var followedUsers = _context.Followers.Where(s => (s.IsActive == true || s.IsActive == null ) && s.FollowerId == user.Id).ToList();
+
+            var followedList = new List<GetMyFollowedListModel>();
+
+            foreach (var followed in followedUsers) {
+
+                followedList.Add(new GetMyFollowedListModel {
+                    User = new UserResponse {
+                        Detail = _user.GetUser(new GetUserModel {
+                            UserId = followed.FollowedId
+                        }).Result.Data.Detail
+                    },
+                    FollowedAt = followed.FollowedAt,
+                    UpdatedAt = followed.UpdatedAt
+                });
+            }
+
+            return new CustomResponse<GetMyFollowedResponseModel> {
+                Succeed = true,
+                Data = new GetMyFollowedResponseModel {
+                    Followed = followedList
                 }
             };
         }
@@ -56,7 +103,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
         #region Post
 
-        public async Task<CustomResponse<GetMyFollowersResponseModel>> PostFollower(PostMyFollowerModel model) {
+        public async Task<CustomResponse<PostMyFollowerResponseModel>> PostFollower(PostMyFollowerModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -66,22 +113,18 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 var savedFollower = SaveFollower();
 
-                return new CustomResponse<GetMyFollowersResponseModel> {
+                return new CustomResponse<PostMyFollowerResponseModel> {
                     Succeed = true,
-                    Data = new GetMyFollowersResponseModel {
-                        Followers = _mapper.Map<List<GetMyFollowersListModel>>(savedFollower)
-                    }
+                    Data = _mapper.Map<PostMyFollowerResponseModel>(savedFollower)
                 };
             }
 
             var modifiedFollower = ModifiedFollower();
 
-            return new CustomResponse<GetMyFollowersResponseModel> {
+            return new CustomResponse<PostMyFollowerResponseModel> {
                 Succeed = true,
-                Data = new GetMyFollowersResponseModel {
-                    Followers = _mapper.Map<List<GetMyFollowersListModel>>(modifiedFollower)
-                }
-            };
+                Data = _mapper.Map<PostMyFollowerResponseModel>(modifiedFollower)
+                };
 
             #region Local Methods
 
@@ -115,7 +158,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             #endregion
         }
 
-        public async Task<CustomResponse<GetMyFollowersResponseModel>> UnFollow(PostMyFollowerModel model) {
+        public async Task<CustomResponse<PostMyFollowerResponseModel>> UnFollow(PostMyFollowerModel model) {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -124,18 +167,16 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             if (follower == null) {
                 _infos.Add("Unfollow attempt failed! You did no follow this user.");
 
-                return new CustomResponse<GetMyFollowersResponseModel> {
+                return new CustomResponse<PostMyFollowerResponseModel> {
                     Message = _infos
                 };
             }
 
             var unFollowed = UnFollow();
 
-            return new CustomResponse<GetMyFollowersResponseModel> {
+            return new CustomResponse<PostMyFollowerResponseModel> {
                 Succeed = true,
-                Data = new GetMyFollowersResponseModel {
-                    Followers = _mapper.Map<List<GetMyFollowersListModel>>(unFollowed)
-                }
+                Data = _mapper.Map<PostMyFollowerResponseModel>(unFollowed)
             };
 
             #region Local Methods

@@ -11,21 +11,37 @@ namespace Virpa.Mobile.BLL.v1.DataManagers {
 
         private readonly IOptions<Manifest> _options;
 
-        private const string SpGetMyFeeds = "sp_GetMyFeeds";
+        private const string SpGetMyFeedsCreated = "sp_GetMyFeeds_Created";
+        private const string SpGetMyFeedsFromFollowed = "sp_GetMyFeeds_FromFollowed";
         private const string SpGetMyWallFeeds = "sp_GetMyWallFeeds";
 
         public FeedsDataManager(IOptions<Manifest> options) {
             _options = options;
         }
 
-        public GetMyFeedsResponseModel GetMyFeeds(GetMyFeedsModel model) {
+        public GetMyFeedsResponseModel GetMyFeedsCreated(GetMyFeedsModel model) {
 
             using (var conn = GetSysDbConnection(_options.Value.DefaultConnection)) {
 
-                var myFeedsJson = conn.Query<GetMyFeedsDataManagerModel>(SpGetMyFeeds, new {
+                var myFeedsJson = conn.Query<GetMyFeedsDataManagerModel>(SpGetMyFeedsCreated, new {
                     model.UserId
                 },
                 commandType: CommandType.StoredProcedure).ToList();
+
+                var mappedMyFeeds = JsonConvert.DeserializeObject<GetMyFeedsResponseModel>(myFeedsJson.FirstOrDefault()?.MyFeeds);
+
+                return mappedMyFeeds;
+            }
+        }
+
+        public GetMyFeedsResponseModel GetMyFeedsFromFollowed(GetMyFeedsModel model) {
+
+            using (var conn = GetSysDbConnection(_options.Value.DefaultConnection)) {
+
+                var myFeedsJson = conn.Query<GetMyFeedsDataManagerModel>(SpGetMyFeedsFromFollowed, new {
+                        model.UserId
+                    },
+                    commandType: CommandType.StoredProcedure).ToList();
 
                 var mappedMyFeeds = JsonConvert.DeserializeObject<GetMyFeedsResponseModel>(myFeedsJson.FirstOrDefault()?.MyFeeds);
 

@@ -26,6 +26,10 @@ namespace Virpa.Mobile.DAL.v1.Model {
 
     public class GetMyFeedsListResponseModel {
 
+        public string Feeder { get; set; }
+
+        public GetFilesListResponse ProfilePicture { get; set; }
+
         public string FeedId { get; set; }
 
         public int? Type { get; set; }

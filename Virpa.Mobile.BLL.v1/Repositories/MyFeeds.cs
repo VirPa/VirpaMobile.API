@@ -50,11 +50,15 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            var feeds = _feedsDataManager.GetMyFeeds(new GetMyFeedsModel {UserId = user.Id });
+            var feedsCreated = _feedsDataManager.GetMyFeedsCreated(new GetMyFeedsModel {UserId = user.Id });
+
+            var feedsFromFollowed = _feedsDataManager.GetMyFeedsFromFollowed(new GetMyFeedsModel { UserId = user.Id });
+
+            var feeds = feedsCreated.Feeds.Union(feedsFromFollowed.Feeds).ToList();
 
             #region Validate Feeds
 
-            if (feeds.Feeds == null) {
+            if (feeds.Count == 0) {
 
                 _infos.Add("No feed/s relevant for this user.");
 
@@ -64,11 +68,13 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             }
             #endregion
 
-            feeds.Feeds = feeds.Feeds.OrderByDescending(f => f.CreatedAt).ToList();
+            feeds = feeds.OrderByDescending(f => f.CreatedAt).ToList();
 
             return new CustomResponse<GetMyFeedsResponseModel> {
                 Succeed = true,
-                Data = feeds
+                Data = new GetMyFeedsResponseModel{
+                    Feeds = feeds
+                }
             };
         }
 

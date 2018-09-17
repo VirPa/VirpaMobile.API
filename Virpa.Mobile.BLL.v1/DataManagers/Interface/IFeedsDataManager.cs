@@ -3,7 +3,9 @@
 namespace Virpa.Mobile.BLL.v1.DataManagers.Interface {
     public interface IFeedsDataManager {
 
-        GetMyFeedsResponseModel GetMyFeeds(GetMyFeedsModel model);
+        GetMyFeedsResponseModel GetMyFeedsCreated(GetMyFeedsModel model);
+
+        GetMyFeedsResponseModel GetMyFeedsFromFollowed(GetMyFeedsModel model);
 
         GetMyFeedsResponseModel GetMyWallFeeds(GetMyFeedsModel model);
     }

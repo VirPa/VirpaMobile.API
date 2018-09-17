@@ -34,6 +34,8 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             CreateMap<Feeds, PostMyFeedDetailResponseModel>()
                 .ForMember(p => p.FeedId, f => f.ResolveUsing(p => p.Id));
+
+            CreateMap<Followers, PostMyFollowerResponseModel>();
         }
     }
 
