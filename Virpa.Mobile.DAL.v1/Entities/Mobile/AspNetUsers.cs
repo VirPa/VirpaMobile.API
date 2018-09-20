@@ -33,6 +33,7 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public long? FollowersCount { get; set; }
         public string BackgroundSummary { get; set; }
 
+        public AspNetUserRoles AspNetUserRoles { get; set; }
         public ICollection<AspNetUserClaims> AspNetUserClaims { get; set; }
         public ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }
     }

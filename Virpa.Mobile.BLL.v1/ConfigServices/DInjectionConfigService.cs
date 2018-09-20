@@ -32,6 +32,10 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
 
             services.AddTransient<IMyFollowers, MyFollowers>();
 
+            services.AddTransient<IMyBidding, MyBidding>();
+
+            services.AddTransient<IMyLocation, MyLocation>();
+
             services.AddTransient<VirpaMobileContext>();
 
             services.AddTransient<ResponseBadRequest>();
@@ -64,6 +68,10 @@ namespace Virpa.Mobile.BLL.v1.ConfigServices {
             services.AddTransient<FeedCoverPhotoModelValidator>();
 
             services.AddTransient<FollowersModelValidator>();
+
+            services.AddTransient<BiddingModelValidator>();
+
+            services.AddTransient<LocationModelValidator>();
 
             return services;
         }

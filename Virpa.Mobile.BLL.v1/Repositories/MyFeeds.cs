@@ -54,11 +54,22 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
             var feedsFromFollowed = _feedsDataManager.GetMyFeedsFromFollowed(new GetMyFeedsModel { UserId = user.Id });
 
-            var feeds = feedsCreated.Feeds.Union(feedsFromFollowed.Feeds).ToList();
+            #region Validate Feeds Created & FromFollowed
+            if (feedsCreated.Feeds == null && feedsFromFollowed.Feeds == null) {
+                _infos.Add("No feed/s relevant for this user.");
+
+                return new CustomResponse<GetMyFeedsResponseModel> {
+                    Message = _infos
+                };
+            }
+
+            #endregion
+
+            var feeds = feedsCreated.Feeds?.Union(feedsFromFollowed.Feeds ?? throw new InvalidOperationException()).ToList();
 
             #region Validate Feeds
 
-            if (feeds.Count == 0) {
+            if (feeds?.Count == 0) {
 
                 _infos.Add("No feed/s relevant for this user.");
 
@@ -68,7 +79,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             }
             #endregion
 
-            feeds = feeds.OrderByDescending(f => f.CreatedAt).ToList();
+            feeds = feeds?.OrderByDescending(f => f.CreatedAt).ToList();
 
             return new CustomResponse<GetMyFeedsResponseModel> {
                 Succeed = true,

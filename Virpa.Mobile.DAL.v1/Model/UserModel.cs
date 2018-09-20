@@ -48,6 +48,8 @@ namespace Virpa.Mobile.DAL.v1.Model {
         public UserDetails Detail { get; set; }
 
         public GetFilesListResponse ProfilePicture { get; set; }
+
+        public PinLocationDetailResponseModel Location { get; set; }
     }
 
     public class UserDetails {

@@ -262,12 +262,10 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     Succeed = refreshToken.Result.Succeed,
                     Data = new GenerateTokenResponseModel {
                         Authorization = refreshToken.Result.Data,
-                        User = new UserResponse {
-                            Detail = _user.GetUser(new GetUserModel {
+                        User = _user.GetUser(new GetUserModel {
                                 UserId = user.Id
-                            }).Result.Data.Detail
-                        }
-                    },
+                            }).Result.Data
+                        },
                     Message = refreshToken.Result.Message
                 };
             }

@@ -53,11 +53,9 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             foreach (var follower in followers) {
 
                 followerList.Add(new GetMyFollowersListModel {
-                    User = new UserResponse {
-                        Detail = _user.GetUser(new GetUserModel {
+                    User = _user.GetUser(new GetUserModel {
                             UserId = follower.FollowerId
-                        }).Result.Data.Detail
-                    },
+                        }).Result.Data,
                     FollowedAt = follower.FollowedAt,
                     UpdatedAt = follower.UpdatedAt
                 });
@@ -82,11 +80,9 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             foreach (var followed in followedUsers) {
 
                 followedList.Add(new GetMyFollowedListModel {
-                    User = new UserResponse {
-                        Detail = _user.GetUser(new GetUserModel {
+                    User = _user.GetUser(new GetUserModel {
                             UserId = followed.FollowedId
-                        }).Result.Data.Detail
-                    },
+                        }).Result.Data,
                     FollowedAt = followed.FollowedAt,
                     UpdatedAt = followed.UpdatedAt
                 });
@@ -113,6 +109,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
 
                 var savedFollower = SaveFollower();
 
+                AddFollowCountToUser();
+
                 return new CustomResponse<PostMyFollowerResponseModel> {
                     Succeed = true,
                     Data = _mapper.Map<PostMyFollowerResponseModel>(savedFollower)
@@ -124,7 +122,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             return new CustomResponse<PostMyFollowerResponseModel> {
                 Succeed = true,
                 Data = _mapper.Map<PostMyFollowerResponseModel>(modifiedFollower)
-                };
+            };
 
             #region Local Methods
 
@@ -155,6 +153,14 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 return updatedFollower.Entity;
             }
 
+            void AddFollowCountToUser() {
+                user.FollowersCount = user.FollowersCount + 1;
+
+                _context.Update(user);
+
+                _context.SaveChanges();
+            }
+
             #endregion
         }
 
@@ -173,6 +179,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
             }
 
             var unFollowed = UnFollow();
+
+            SubtractFollowCountToUser();
 
             return new CustomResponse<PostMyFollowerResponseModel> {
                 Succeed = true,
@@ -193,6 +201,14 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 return updatedFollower.Entity;
             }
 
+            void SubtractFollowCountToUser() {
+
+                user.FollowersCount = user.FollowersCount - 1;
+
+                _context.Update(user);
+
+                _context.SaveChanges();
+            }
             #endregion
         }
         #endregion

@@ -9,6 +9,8 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public string FeedId { get; set; }
         public string UserId { get; set; }
         public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public string InitialMessage { get; set; }
         public int? Status { get; set; }
     }
 }

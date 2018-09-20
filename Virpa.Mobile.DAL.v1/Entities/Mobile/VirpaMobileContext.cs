@@ -19,6 +19,7 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
         public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
+        public virtual DbSet<AspNetUserRoles> AspNetUserRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<AspNetUserSessions> AspNetUserSessions { get; set; }
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
@@ -26,13 +27,11 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
         public virtual DbSet<FeedMessages> FeedMessages { get; set; }
         public virtual DbSet<Feeds> Feeds { get; set; }
         public virtual DbSet<Files> Files { get; set; }
-        public virtual DbSet<FilesBase64> FilesBase64 { get; set; }
         public virtual DbSet<Followers> Followers { get; set; }
+        public virtual DbSet<Location> Location { get; set; }
         public virtual DbSet<ReferenceData> ReferenceData { get; set; }
         public virtual DbSet<Skills> Skills { get; set; }
         public virtual DbSet<UserSkills> UserSkills { get; set; }
-
-        // Unable to generate entity type for table 'dbo.AspNetUserRoles'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -90,6 +89,27 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.AspNetUserLogins)
                     .HasForeignKey(d => d.UserId);
+            });
+
+            modelBuilder.Entity<AspNetUserRoles>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+
+                entity.HasIndex(e => e.RoleId);
+
+                entity.HasIndex(e => e.UserId);
+
+                entity.Property(e => e.UserId).ValueGeneratedNever();
+
+                entity.Property(e => e.RoleId).IsRequired();
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.AspNetUserRoles)
+                    .HasForeignKey(d => d.RoleId);
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.AspNetUserRoles)
+                    .HasForeignKey<AspNetUserRoles>(d => d.UserId);
             });
 
             modelBuilder.Entity<AspNetUsers>(entity =>
@@ -187,21 +207,6 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.Property(e => e.UserId).HasMaxLength(450);
             });
 
-            modelBuilder.Entity<FilesBase64>(entity =>
-            {
-                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.CodeName).HasMaxLength(450);
-
-                entity.Property(e => e.Extension).HasMaxLength(50);
-
-                entity.Property(e => e.FeedId).HasMaxLength(450);
-
-                entity.Property(e => e.Name).HasMaxLength(450);
-
-                entity.Property(e => e.UserId).HasMaxLength(450);
-            });
-
             modelBuilder.Entity<Followers>(entity =>
             {
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
@@ -209,6 +214,23 @@ namespace Virpa.Mobile.DAL.v1.Entities.Mobile
                 entity.Property(e => e.FollowedId).HasMaxLength(450);
 
                 entity.Property(e => e.FollowerId).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<Location>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IpAddress).HasMaxLength(250);
+
+                entity.Property(e => e.Latitude).HasColumnType("decimal(18, 8)");
+
+                entity.Property(e => e.Longitude).HasColumnType("decimal(18, 8)");
+
+                entity.Property(e => e.MacAddress).HasMaxLength(250);
+
+                entity.Property(e => e.PostalCode).HasMaxLength(50);
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
             });
 
             modelBuilder.Entity<ReferenceData>(entity =>

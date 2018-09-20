@@ -73,7 +73,8 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                     Succeed = true,
                     Data = new UserResponse {
                         Detail = _mapper.Map<UserDetails>(user),
-                        ProfilePicture = GetProfilePicture(user.Id)
+                        ProfilePicture = GetProfilePicture(user.Id),
+                        Location = GetLUserocation(user.Id)
                     }
                 };
             });
@@ -92,6 +93,7 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
         }
 
         public GetFilesListResponse GetProfilePicture(string userId) {
+
             var profilePicture = _context.Files.FirstOrDefault(p => p.UserId == userId && p.Type == 3);
 
             if (profilePicture == null) return null;
@@ -105,6 +107,13 @@ namespace Virpa.Mobile.BLL.v1.Repositories {
                 Type = profilePicture.Type ?? 3,
                 CreatedAt = profilePicture.CreatedAt
             };
+        }
+
+        public PinLocationDetailResponseModel GetLUserocation(string userId) {
+
+            var location = _context.Location.FirstOrDefault(p => p.UserId == userId);
+
+            return location == null ? null : _mapper.Map<PinLocationDetailResponseModel>(location);
         }
 
         #endregion

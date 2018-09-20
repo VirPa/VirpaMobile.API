@@ -12,6 +12,8 @@ namespace Virpa.Mobile.DAL.v1.Identity {
 
         public string BackgroundSummary { get; set; }
 
+        public long? FollowersCount { get; set; }
+
         public DateTime? CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
